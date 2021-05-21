@@ -1,27 +1,124 @@
 #include "dc_motor_v2.h"
-
-int cycle_distant[6];
+#include "task_motor.h"
 
 BluetoothSerial SerialBT;
 
-
 void IRAM_ATTR dirhallSensor1(){
-
+	current_distant_motor.current_motor_1 ++;
+	if(!isModeConfig){	//check normal mode run
+		if(current_distant_motor.current_motor_1 == value_distant_motor.distant_motor_1){
+			motor1_stop();
+			if(check_done_step()){
+				beginChangeStep = true;
+				restartCurrentDistant();
+				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+					mode_run_open ++;
+				}
+				else{
+					mode_run_close ++;
+				}
+			}
+		}
+	}
+	else{	//check setup mode run
+		if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
+			if(current_distant_motor.current_motor_1 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+				mode_run_step_from_app = false;
+				save_distant_from_setup[MOTOR_1] = true;
+				motor1_stop();
+			}
+		}
+	}
 }
 void IRAM_ATTR dirhallSensor2(){
-    
+    current_distant_motor.current_motor_2 ++;
+	if(!isModeConfig){	//check normal mode run
+		if(current_distant_motor.current_motor_2 == value_distant_motor.distant_motor_2){
+			motor2_stop();
+			if(check_done_step()){
+				beginChangeStep = true;
+				restartCurrentDistant();
+				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+					mode_run_open ++;
+				}
+				else{
+					mode_run_close ++;
+				}
+			}
+		}
+	}
 }
 void IRAM_ATTR dirhallSensor3(){
-    
+    current_distant_motor.current_motor_3 ++;
+	if(!isModeConfig){	//check normal mode run
+		if(current_distant_motor.current_motor_3 == value_distant_motor.distant_motor_3){
+			motor3_stop();
+			if(check_done_step()){
+				beginChangeStep = true;
+				restartCurrentDistant();
+				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+					mode_run_open ++;
+				}
+				else{
+					mode_run_close ++;
+				}
+			}
+		}
+	}
 }
 void IRAM_ATTR dirhallSensor4(){
-    
+    current_distant_motor.current_motor_4 ++;
+	if(!isModeConfig){	//check normal mode run
+		if(current_distant_motor.current_motor_4 == value_distant_motor.distant_motor_4){
+			motor4_stop();
+			if(check_done_step()){
+				beginChangeStep = true;
+				restartCurrentDistant();
+				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+					mode_run_open ++;
+				}
+				else{
+					mode_run_close ++;
+				}
+			}
+		}
+	}
 }
 void IRAM_ATTR dirhallSensor5(){
-    
+    current_distant_motor.current_motor_5 ++;
+	if(!isModeConfig){	//check normal mode run
+		if(current_distant_motor.current_motor_5 == value_distant_motor.distant_motor_5){
+			motor5_stop();
+			if(check_done_step()){
+				beginChangeStep = true;
+				restartCurrentDistant();
+				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+					mode_run_open ++;
+				}
+				else{
+					mode_run_close ++;
+				}
+			}
+		}
+	}
 }
 void IRAM_ATTR dirhallSensor6(){
-    
+    current_distant_motor.current_motor_6 ++;
+	if(!isModeConfig){	//check normal mode run
+		if(current_distant_motor.current_motor_6 == value_distant_motor.distant_motor_6){
+			motor6_stop();
+			if(check_done_step()){
+				beginChangeStep = true;
+				restartCurrentDistant();
+				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+					mode_run_open ++;
+				}
+				else{
+					mode_run_close ++;
+				}
+			}
+		}
+	}
 }
 
 void setPinMode(){
@@ -45,19 +142,81 @@ void setPinMode(){
 	pinMode(hallSensor4a, INPUT);
 	pinMode(hallSensor5a, INPUT);
 	pinMode(hallSensor6a, INPUT);
-	pinMode(pinSetUp, INPUT);
+	pinMode(PIN_SET_UP_OPEN_CLOSE, INPUT);
 	pinMode(PIN_SWITCH_MODE_SETUP, INPUT);
 
 	delay(10);
 }
 
+void restartCurrentDistant(){
+	current_distant_motor.current_motor_1 = 0;
+	current_distant_motor.current_motor_2 = 0;
+	current_distant_motor.current_motor_3 = 0;
+	current_distant_motor.current_motor_4 = 0;
+	current_distant_motor.current_motor_5 = 0;
+	current_distant_motor.current_motor_6 = 0;
+}
+
+void readDataEeprom(){
+    //--------------Motor 1------------------------
+    String distantMotor1 = "";
+    for (int i = EEPROOM_CYCLE_MOTOR_1_START; i < EEPROOM_CYCLE_MOTOR_1_END; ++i){
+        distantMotor1 += char(EEPROM.read(i));
+    }
+    value_distant_motor.distant_motor_1 = distantMotor1.toInt();
+    ECHO("Read Distant Motor 1: ");
+    ECHOLN(value_distant_motor.distant_motor_1);
+    //--------------Motor 2------------------------
+    String distantMotor2 = "";
+    for (int i = EEPROOM_CYCLE_MOTOR_2_START; i < EEPROOM_CYCLE_MOTOR_2_END; ++i){
+        distantMotor2 += char(EEPROM.read(i));
+    }
+    value_distant_motor.distant_motor_2 = distantMotor2.toInt();
+    ECHO("Read Distant Motor 2: ");
+    ECHOLN(value_distant_motor.distant_motor_2);
+    //--------------Motor 3------------------------
+    String distantMotor3 = "";
+    for (int i = EEPROOM_CYCLE_MOTOR_3_START; i < EEPROOM_CYCLE_MOTOR_3_END; ++i){
+        distantMotor3 += char(EEPROM.read(i));
+    }
+    value_distant_motor.distant_motor_3 = distantMotor3.toInt();
+    ECHO("Read Distant Motor 3: ");
+    ECHOLN(value_distant_motor.distant_motor_3);
+    //--------------Motor 4------------------------
+    String distantMotor4 = "";
+    for (int i = EEPROOM_CYCLE_MOTOR_4_START; i < EEPROOM_CYCLE_MOTOR_4_END; ++i){
+        distantMotor4 += char(EEPROM.read(i));
+    }
+    value_distant_motor.distant_motor_4 = distantMotor1.toInt();
+    ECHO("Read Distant Motor 4: ");
+    ECHOLN(value_distant_motor.distant_motor_4);
+    //--------------Motor 5------------------------
+    String distantMotor5 = "";
+    for (int i = EEPROOM_CYCLE_MOTOR_5_START; i < EEPROOM_CYCLE_MOTOR_5_END; ++i){
+        distantMotor5 += char(EEPROM.read(i));
+    }
+    value_distant_motor.distant_motor_5 = distantMotor1.toInt();
+    ECHO("Read Distant Motor 5: ");
+    ECHOLN(value_distant_motor.distant_motor_5);
+    //--------------Motor 6------------------------
+    String distantMotor6 = "";
+    for (int i = EEPROOM_CYCLE_MOTOR_6_START; i < EEPROOM_CYCLE_MOTOR_6_END; ++i){
+        distantMotor6 += char(EEPROM.read(i));
+    }
+    value_distant_motor.distant_motor_6 = distantMotor1.toInt();
+    ECHO("Read Distant Motor 6: ");
+    ECHOLN(value_distant_motor.distant_motor_6);
+}
+
 
 void callbackBluetooth(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
-    if(event == ESP_SPP_SRV_OPEN_EVT){
-        ECHOLN("Client Connected");
-    }
-    if(event == ESP_SPP_DATA_IND_EVT){
-        if (param->data_ind.len < MAX_RESPONSE_LENGTH) {
+    switch (event)
+	{
+	case ESP_SPP_SRV_OPEN_EVT:
+		ECHOLN("Client Connected");
+		break;
+	case ESP_SPP_DATA_IND_EVT:	
+		if (param->data_ind.len < MAX_RESPONSE_LENGTH) {
             String data;
             for(int i = 0; i < param->data_ind.len; i++){
                 data += (char)param->data_ind.data[i];
@@ -66,10 +225,290 @@ void callbackBluetooth(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
             ECHOLN(data);
             StaticJsonBuffer<MAX_RESPONSE_LENGTH> jsonBuffer;
             JsonObject& rootData = jsonBuffer.parseObject(data);
+			if (rootData.success()){
+				String type = rootData["type"];
+				String name = rootData["name"];
+				if(type == "get_distant"){
+					sendDistanttoApp();
+				}
+				else if(type == "edt_save_distant"){
+					String data = rootData["data"];
+					if(name == "motor1"){
+						value_distant_motor.distant_motor_1 = data.toInt();
+						for (int i = EEPROOM_CYCLE_MOTOR_1_START; i <= EEPROOM_CYCLE_MOTOR_1_END; i++){ 
+                        	EEPROM.write(i, 0); 
+                    	}
+						for (int i = 0; i < data.length(); ++i){
+							EEPROM.write(i+EEPROOM_CYCLE_MOTOR_1_START, data[i]);             
+							// ECHO(data[i]);
+						}
+					}
+					else if(name == "motor2"){
+						value_distant_motor.distant_motor_2 = data.toInt();
+						for (int i = EEPROOM_CYCLE_MOTOR_2_START; i <= EEPROOM_CYCLE_MOTOR_2_END; i++){ 
+                        	EEPROM.write(i, 0); 
+                    	}
+						for (int i = 0; i < data.length(); ++i){
+							EEPROM.write(i+EEPROOM_CYCLE_MOTOR_2_START, data[i]);             
+							// ECHO(data[i]);
+						}
+					}
+					else if(name == "motor3"){
+						value_distant_motor.distant_motor_3 = data.toInt();
+						for (int i = EEPROOM_CYCLE_MOTOR_3_START; i <= EEPROOM_CYCLE_MOTOR_3_END; i++){ 
+                        	EEPROM.write(i, 0); 
+                    	}
+						for (int i = 0; i < data.length(); ++i){
+							EEPROM.write(i+EEPROOM_CYCLE_MOTOR_3_START, data[i]);             
+							// ECHO(data[i]);
+						}
+					}
+					else if(name == "motor4"){
+						value_distant_motor.distant_motor_4 = data.toInt();
+						for (int i = EEPROOM_CYCLE_MOTOR_4_START; i <= EEPROOM_CYCLE_MOTOR_4_END; i++){ 
+                        	EEPROM.write(i, 0); 
+                    	}
+						for (int i = 0; i < data.length(); ++i){
+							EEPROM.write(i+EEPROOM_CYCLE_MOTOR_4_START, data[i]);             
+							// ECHO(data[i]);
+						}
+					}
+					else if(name == "motor5"){
+						value_distant_motor.distant_motor_5 = data.toInt();
+						for (int i = EEPROOM_CYCLE_MOTOR_5_START; i <= EEPROOM_CYCLE_MOTOR_5_END; i++){ 
+                        	EEPROM.write(i, 0); 
+                    	}
+						for (int i = 0; i < data.length(); ++i){
+							EEPROM.write(i+EEPROOM_CYCLE_MOTOR_5_START, data[i]);             
+							// ECHO(data[i]);
+						}
+					}
+					else if(name == "motor6"){
+						value_distant_motor.distant_motor_6 = data.toInt();
+						for (int i = EEPROOM_CYCLE_MOTOR_6_START; i <= EEPROOM_CYCLE_MOTOR_6_END; i++){ 
+                        	EEPROM.write(i, 0); 
+                    	}
+						for (int i = 0; i < data.length(); ++i){
+							EEPROM.write(i+EEPROOM_CYCLE_MOTOR_6_START, data[i]);             
+							// ECHO(data[i]);
+						}
+					}
+					EEPROM.commit();
+				}
+				else if(type == "run_no_step"){
+					String command = rootData["command"];
+					if(name == "motor1"){
+						if(command == "open"){
+							motor1_open();
+						}
+						else if(command == "stop"){
+							motor1_stop();
+						}
+						else if(command == "close"){
+							motor1_close();
+						}
+					}
+					else if(name == "motor2"){
+						if(command == "open"){
+							motor2_open();
+						}
+						else if(command == "stop"){
+							motor2_stop();
+						}
+						else if(command == "close"){
+							motor2_close();
+						}
+					}
+					else if(name == "motor3"){
+						if(command == "open"){
+							motor3_open();
+						}
+						else if(command == "stop"){
+							motor3_stop();
+						}
+						else if(command == "close"){
+							motor3_close();
+						}
+					}
+					else if(name == "motor4"){
+						if(command == "open"){
+							motor4_open();
+						}
+						else if(command == "stop"){
+							motor4_stop();
+						}
+						else if(command == "close"){
+							motor4_close();
+						}
+					}
+					else if(name == "motor5"){
+						if(command == "open"){
+							motor5_open();
+						}
+						else if(command == "stop"){
+							motor5_stop();
+						}
+						else if(command == "close"){
+							motor5_close();
+						}
+					}
+					else if(name == "motor6"){
+						if(command == "open"){
+							motor6_open();
+						}
+						else if(command == "stop"){
+							motor6_stop();
+						}
+						else if(command == "close"){
+							motor6_close();
+						}
+					}
+				}
+				else if(type == "run_with_step"){
+					String command = rootData["command"];
+					String data = rootData["data"];
+					step_run_to_stop_app = data.toInt();
+					mode_run_step_from_app = true;
+					if(name == "motor1"){
+						distant_in_time_press_step_run = current_distant_motor.current_motor_1;
+						if(command == "open"){
+							motor1_open();
+						}
+						else if(command == "close"){
+							motor1_close();
+						}
+					}
+					else if(name == "motor2"){
+						if(command == "open"){
+							motor2_open();
+						}
+						else if(command == "close"){
+							motor2_close();
+						}
+					}
+					else if(name == "motor3"){
+						if(command == "open"){
+							motor3_open();
+						}
+						else if(command == "close"){
+							motor3_close();
+						}
+					}
+					else if(name == "motor4"){
+						if(command == "open"){
+							motor4_open();
+						}
+						else if(command == "close"){
+							motor4_close();
+						}
+					}
+					else if(name == "motor5"){
+						if(command == "open"){
+							motor5_open();
+						}
+						else if(command == "close"){
+							motor5_close();
+						}
+					}
+					else if(name == "motor6"){
+						if(command == "open"){
+							motor6_open();
+						}
+						else if(command == "close"){
+							motor6_close();
+						}
+					}
+				}
+				else if(type == "run_save_distant"){
+					String command = rootData["command"];
+					if(name == "motor1"){
+						if(command == "open"){
+							current_distant_motor.current_motor_1 = 0;
+							motor1_open();
+						}
+						else if(command == "stop"){
+							save_distant_from_setup[MOTOR_1] = true;
+							motor1_stop();
+						}
+					}
+					else if(name == "motor2"){
+						if(command == "open"){
+							current_distant_motor.current_motor_2 = 0;
+							motor2_open();
+						}
+						else if(command == "stop"){
+							save_distant_from_setup[MOTOR_2] = true;
+							motor2_stop();
+						}
+					}
+					else if(name == "motor3"){
+						if(command == "open"){
+							current_distant_motor.current_motor_3 = 0;
+							motor3_open();
+						}
+						else if(command == "stop"){
+							save_distant_from_setup[MOTOR_3] = true;
+							motor3_stop();
+						}
+					}
+					else if(name == "motor4"){
+						if(command == "open"){
+							current_distant_motor.current_motor_4 = 0;
+							motor4_open();
+						}
+						else if(command == "stop"){
+							save_distant_from_setup[MOTOR_4] = true;
+							motor4_stop();
+						}
+					}
+					else if(name == "motor5"){
+						if(command == "open"){
+							current_distant_motor.current_motor_5 = 0;
+							motor5_open();
+						}
+						else if(command == "stop"){
+							save_distant_from_setup[MOTOR_5] = true;
+							motor5_stop();
+						}
+					}
+					else if(name == "motor6"){
+						if(command == "open"){
+							current_distant_motor.current_motor_6 = 0;
+							motor6_open();
+						}
+						else if(command == "stop"){
+							save_distant_from_setup[MOTOR_6] = true;
+							motor6_stop();
+						}
+					}
+				}
+			}
         }
-    }
+		break;
+	default:
+		break;
+	}
+	
 }
-
+//------------------------CHECK BUTTOM SWITCH SETUP-------------------
+void checkButtonSwitchSetup(){
+	if(digitalRead(PIN_SWITCH_MODE_SETUP) && !fisrt_switch_mode_setup){
+		delay(100);
+		fisrt_switch_mode_setup = true;
+		isModeConfig = false;
+		if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){		//----MODE OPEN SWITCH
+			mode_run_open = OPEN_STEP_1;
+		}
+		else{	//----MODE CLOSE SWITCH
+			mode_run_close = CLOSE_STEP_1;
+		}
+	}
+	else if(!digitalRead(PIN_SWITCH_MODE_SETUP) && fisrt_switch_mode_setup){
+		delay(100);
+		fisrt_switch_mode_setup = false;
+		isModeConfig = true;
+	}
+}
 
 
 void setup(){
@@ -90,23 +529,592 @@ void setup(){
 	attachInterrupt(digitalPinToInterrupt(hallSensor6a), dirhallSensor6, RISING);
 
 
-	SerialBT.register_callback(callbackBluetooth);
-    if(!SerialBT.begin("Test Motor")){
-        ECHOLN("An error occurred initializing Bluetooth");
-    }else{
-        ECHOLN("Bluetooth initialized");
-    }
+	// SerialBT.flush();
+    // SerialBT.end(); 
+    // if(!SerialBT.begin("Test Motor")){
+    //     ECHOLN("An error occurred initializing Bluetooth");
+    // }else{
+    //     ECHOLN("Bluetooth initialized");
+    // }
+	// SerialBT.register_callback(callbackBluetooth);
+	
 
 }
 
 void loop(){
-	static bool fisrt_switch_mode_setup = false;
-	if(digitalRead(PIN_SWITCH_MODE_SETUP) && fisrt_switch_mode_setup){
-		fisrt_switch_mode_setup = true;
-		isModeConfig = true;
+	//------------------------CHECK BUTTOM SWITCH SETUP-------------------
+	checkButtonSwitchSetup();
+	
+	//----------------------MODE RUN NORMAL------------------------
+	if(!isModeConfig){
+		//-------------------MODE OPEN SWITCH RUN-----------------------
+		if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+			mode_run_close = CLOSE_STEP_1;
+			switch (mode_run_open)
+			{
+			case OPEN_STEP_1:
+				if(beginChangeStep){
+					ECHOLN("START MODE RUN OPEN STEP 1");
+					beginChangeStep = false;
+					restartCurrentDistant();
+					switch (MODE_OPEN_STEP_1[MOTOR_1])
+					{
+					case RUN_OPEN:
+						motor1_open();
+						break;
+					case RUN_STOP:
+						motor1_stop();
+						break;
+					case RUN_CLOSE:
+						motor1_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_2])
+					{
+					case RUN_OPEN:
+						motor2_open();
+						break;
+					case RUN_STOP:
+						motor2_stop();
+						break;
+					case RUN_CLOSE:
+						motor2_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_3])
+					{
+					case RUN_OPEN:
+						motor3_open();
+						break;
+					case RUN_STOP:
+						motor3_stop();
+						break;
+					case RUN_CLOSE:
+						motor3_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_4])
+					{
+					case RUN_OPEN:
+						motor4_open();
+						break;
+					case RUN_STOP:
+						motor4_stop();
+						break;
+					case RUN_CLOSE:
+						motor4_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_5])
+					{
+					case RUN_OPEN:
+						motor5_open();
+						break;
+					case RUN_STOP:
+						motor5_stop();
+						break;
+					case RUN_CLOSE:
+						motor5_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_6])
+					{
+					case RUN_OPEN:
+						motor6_open();
+						break;
+					case RUN_STOP:
+						motor6_stop();
+						break;
+					case RUN_CLOSE:
+						motor6_close();
+						break;
+					default:
+						break;
+					}
+				}
+				break;
+			case OPEN_STEP_2:
+				if(beginChangeStep){
+					ECHOLN("START MODE RUN OPEN STEP 2");
+					beginChangeStep = false;
+					restartCurrentDistant();
+					switch (MODE_OPEN_STEP_2[MOTOR_1])
+					{
+					case RUN_OPEN:
+						motor1_open();
+						break;
+					case RUN_STOP:
+						motor1_stop();
+						break;
+					case RUN_CLOSE:
+						motor1_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_2])
+					{
+					case RUN_OPEN:
+						motor2_open();
+						break;
+					case RUN_STOP:
+						motor2_stop();
+						break;
+					case RUN_CLOSE:
+						motor2_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_3])
+					{
+					case RUN_OPEN:
+						motor3_open();
+						break;
+					case RUN_STOP:
+						motor3_stop();
+						break;
+					case RUN_CLOSE:
+						motor3_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_4])
+					{
+					case RUN_OPEN:
+						motor4_open();
+						break;
+					case RUN_STOP:
+						motor4_stop();
+						break;
+					case RUN_CLOSE:
+						motor4_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_5])
+					{
+					case RUN_OPEN:
+						motor5_open();
+						break;
+					case RUN_STOP:
+						motor5_stop();
+						break;
+					case RUN_CLOSE:
+						motor5_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_6])
+					{
+					case RUN_OPEN:
+						motor6_open();
+						break;
+					case RUN_STOP:
+						motor6_stop();
+						break;
+					case RUN_CLOSE:
+						motor6_close();
+						break;
+					default:
+						break;
+					}
+				}
+				break;
+			case OPEN_STEP_3:
+				if(beginChangeStep){
+					ECHOLN("START MODE RUN OPEN STEP 3");
+					beginChangeStep = false;
+					restartCurrentDistant();
+					switch (MODE_OPEN_STEP_3[MOTOR_1])
+					{
+					case RUN_OPEN:
+						motor1_open();
+						break;
+					case RUN_STOP:
+						motor1_stop();
+						break;
+					case RUN_CLOSE:
+						motor1_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_2])
+					{
+					case RUN_OPEN:
+						motor2_open();
+						break;
+					case RUN_STOP:
+						motor2_stop();
+						break;
+					case RUN_CLOSE:
+						motor2_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_3])
+					{
+					case RUN_OPEN:
+						motor3_open();
+						break;
+					case RUN_STOP:
+						motor3_stop();
+						break;
+					case RUN_CLOSE:
+						motor3_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_4])
+					{
+					case RUN_OPEN:
+						motor4_open();
+						break;
+					case RUN_STOP:
+						motor4_stop();
+						break;
+					case RUN_CLOSE:
+						motor4_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_5])
+					{
+					case RUN_OPEN:
+						motor5_open();
+						break;
+					case RUN_STOP:
+						motor5_stop();
+						break;
+					case RUN_CLOSE:
+						motor5_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_6])
+					{
+					case RUN_OPEN:
+						motor6_open();
+						break;
+					case RUN_STOP:
+						motor6_stop();
+						break;
+					case RUN_CLOSE:
+						motor6_close();
+						break;
+					default:
+						break;
+					}
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		//--------------------MODE CLOSE SWITCH RUN-----------------------
+		else{
+			mode_run_open = OPEN_STEP_1;
+			switch (mode_run_close)
+			{
+			case CLOSE_STEP_1:
+				if(beginChangeStep){
+					ECHOLN("START MODE RUN CLOSE STEP 1");
+					beginChangeStep = false;
+					restartCurrentDistant();
+					switch (MODE_CLOSE_STEP_1[MOTOR_1])
+					{
+					case RUN_OPEN:
+						motor1_open();
+						break;
+					case RUN_STOP:
+						motor1_stop();
+						break;
+					case RUN_CLOSE:
+						motor1_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_2])
+					{
+					case RUN_OPEN:
+						motor2_open();
+						break;
+					case RUN_STOP:
+						motor2_stop();
+						break;
+					case RUN_CLOSE:
+						motor2_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_3])
+					{
+					case RUN_OPEN:
+						motor3_open();
+						break;
+					case RUN_STOP:
+						motor3_stop();
+						break;
+					case RUN_CLOSE:
+						motor3_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_4])
+					{
+					case RUN_OPEN:
+						motor4_open();
+						break;
+					case RUN_STOP:
+						motor4_stop();
+						break;
+					case RUN_CLOSE:
+						motor4_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_5])
+					{
+					case RUN_OPEN:
+						motor5_open();
+						break;
+					case RUN_STOP:
+						motor5_stop();
+						break;
+					case RUN_CLOSE:
+						motor5_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_1[MOTOR_6])
+					{
+					case RUN_OPEN:
+						motor6_open();
+						break;
+					case RUN_STOP:
+						motor6_stop();
+						break;
+					case RUN_CLOSE:
+						motor6_close();
+						break;
+					default:
+						break;
+					}
+				}
+				break;
+			case CLOSE_STEP_2:
+				if(beginChangeStep){
+					ECHOLN("START MODE RUN CLOSE STEP 2");
+					beginChangeStep = false;
+					restartCurrentDistant();
+					switch (MODE_CLOSE_STEP_2[MOTOR_1])
+					{
+					case RUN_OPEN:
+						motor1_open();
+						break;
+					case RUN_STOP:
+						motor1_stop();
+						break;
+					case RUN_CLOSE:
+						motor1_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_2])
+					{
+					case RUN_OPEN:
+						motor2_open();
+						break;
+					case RUN_STOP:
+						motor2_stop();
+						break;
+					case RUN_CLOSE:
+						motor2_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_3])
+					{
+					case RUN_OPEN:
+						motor3_open();
+						break;
+					case RUN_STOP:
+						motor3_stop();
+						break;
+					case RUN_CLOSE:
+						motor3_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_4])
+					{
+					case RUN_OPEN:
+						motor4_open();
+						break;
+					case RUN_STOP:
+						motor4_stop();
+						break;
+					case RUN_CLOSE:
+						motor4_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_5])
+					{
+					case RUN_OPEN:
+						motor5_open();
+						break;
+					case RUN_STOP:
+						motor5_stop();
+						break;
+					case RUN_CLOSE:
+						motor5_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_2[MOTOR_6])
+					{
+					case RUN_OPEN:
+						motor6_open();
+						break;
+					case RUN_STOP:
+						motor6_stop();
+						break;
+					case RUN_CLOSE:
+						motor6_close();
+						break;
+					default:
+						break;
+					}
+				}
+				break;
+			case CLOSE_STEP_3:
+				if(beginChangeStep){
+					ECHOLN("START MODE RUN CLOSE STEP 3");
+					beginChangeStep = false;
+					restartCurrentDistant();
+					switch (MODE_CLOSE_STEP_3[MOTOR_1])
+					{
+					case RUN_OPEN:
+						motor1_open();
+						break;
+					case RUN_STOP:
+						motor1_stop();
+						break;
+					case RUN_CLOSE:
+						motor1_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_2])
+					{
+					case RUN_OPEN:
+						motor2_open();
+						break;
+					case RUN_STOP:
+						motor2_stop();
+						break;
+					case RUN_CLOSE:
+						motor2_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_3])
+					{
+					case RUN_OPEN:
+						motor3_open();
+						break;
+					case RUN_STOP:
+						motor3_stop();
+						break;
+					case RUN_CLOSE:
+						motor3_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_4])
+					{
+					case RUN_OPEN:
+						motor4_open();
+						break;
+					case RUN_STOP:
+						motor4_stop();
+						break;
+					case RUN_CLOSE:
+						motor4_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_5])
+					{
+					case RUN_OPEN:
+						motor5_open();
+						break;
+					case RUN_STOP:
+						motor5_stop();
+						break;
+					case RUN_CLOSE:
+						motor5_close();
+						break;
+					default:
+						break;
+					}
+					switch (MODE_OPEN_STEP_3[MOTOR_6])
+					{
+					case RUN_OPEN:
+						motor6_open();
+						break;
+					case RUN_STOP:
+						motor6_stop();
+						break;
+					case RUN_CLOSE:
+						motor6_close();
+						break;
+					default:
+						break;
+					}
+				}
+				break;
+			default:
+				break;
+			}
+		}
 	}
-	else if(!digitalRead(PIN_SWITCH_MODE_SETUP) && fisrt_switch_mode_setup){
-		isModeConfig = false;
+	//-------------------------MODE RUN SETUP-------------------------
+	else{
+
 	}
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+
 }

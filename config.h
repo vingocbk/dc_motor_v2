@@ -20,7 +20,7 @@
 #define hallSensor5a            34
 #define hallSensor6a            35
 //#define hallSensor6a            15
-#define pinSetUp                0
+#define PIN_SET_UP_OPEN_CLOSE   0
 #define PIN_SWITCH_MODE_SETUP   15
 
 
@@ -42,5 +42,18 @@
 #define BAUD_RATE_SERIAL		115200
 #define MAX_SIZE_EEPROM_BUFFER	256
 #define MAX_RESPONSE_LENGTH 512
+#define MAX_NUMBER_MOTOR 6
+
+
+enum
+{
+    MOTOR_1 = 0,
+    MOTOR_2,
+    MOTOR_3,
+    MOTOR_4,
+    MOTOR_5,
+    MOTOR_6
+};
+
 
 #endif

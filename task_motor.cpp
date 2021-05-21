@@ -1,162 +1,226 @@
+
 #include "task_motor.h"
+
 #include "AppDebug.h"
-#include "config.h"
 #include "EEPROM.h"
 
-QueueHandle_t motorCommandQ;
-bool isModeConfig;
+//----when all motor run done, ---> next step to run 
+bool flag_when_run_done[MAX_NUMBER_MOTOR] = {false, false, false, false, false, false};
 
-//---variable for value current off positon motor
-struct current_motor
-{
-    /* data */
-    uint32_t current_motor_1;
-    uint32_t current_motor_2;
-    uint32_t current_motor_3;
-    uint32_t current_motor_4;
-    uint32_t current_motor_5;
-    uint32_t current_motor_6;
-}current_distant_motor;
+//----save distant when motor stop, in mode get edit text on app or mode run step on app
+bool save_distant_from_setup[MAX_NUMBER_MOTOR] = {false, false, false, false, false, false};
 
-//---value save in eeprom----
-struct distant_motor
-{
-    /* data */
-    uint32_t distant_motor_1;
-    uint32_t distant_motor_2;
-    uint32_t distant_motor_3;
-    uint32_t distant_motor_4;
-    uint32_t distant_motor_5;
-    uint32_t distant_motor_6;
-}value_distant_motor;
+struct current_motor current_distant_motor;
 
+struct distant_motor value_distant_motor;
+
+void sendDistanttoApp(){
+
+
+}
+
+bool check_done_step(){
+    if(flag_when_run_done[MOTOR_1]
+    && flag_when_run_done[MOTOR_2]
+    && flag_when_run_done[MOTOR_3]
+    && flag_when_run_done[MOTOR_4]
+    && flag_when_run_done[MOTOR_5]
+    && flag_when_run_done[MOTOR_6]
+    ){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 
 void motor1_stop(){
+    ECHOLN("MORTOR 1 STOP");
+    flag_when_run_done[MOTOR_1] = true;
 	digitalWrite(L1_UP, LOW);
 	digitalWrite(L1_DOWN, LOW);
+    if(save_distant_from_setup[MOTOR_1]){
+        save_distant_from_setup[MOTOR_1] = false;
+        value_distant_motor.distant_motor_1 = current_distant_motor.current_motor_1;
+        String data = String(value_distant_motor.distant_motor_1);
+        for (int i = EEPROOM_CYCLE_MOTOR_1_START; i <= EEPROOM_CYCLE_MOTOR_1_END; i++){ 
+            EEPROM.write(i, 0); 
+        }
+        for (int i = 0; i < data.length(); ++i){
+            EEPROM.write(i+EEPROOM_CYCLE_MOTOR_1_START, data[i]);             
+        }
+        EEPROM.commit();
+        sendDistanttoApp();
+    }
 }
 void motor2_stop(){
+    ECHOLN("MORTOR 2 STOP");
+    flag_when_run_done[MOTOR_2] = true;
 	digitalWrite(L2_UP, LOW);
 	digitalWrite(L2_DOWN, LOW);
+    if(save_distant_from_setup[MOTOR_2]){
+        save_distant_from_setup[MOTOR_2] = false;
+        value_distant_motor.distant_motor_2 = current_distant_motor.current_motor_2;
+        String data = String(value_distant_motor.distant_motor_2);
+        for (int i = EEPROOM_CYCLE_MOTOR_2_START; i <= EEPROOM_CYCLE_MOTOR_2_END; i++){ 
+            EEPROM.write(i, 0); 
+        }
+        for (int i = 0; i < data.length(); ++i){
+            EEPROM.write(i+EEPROOM_CYCLE_MOTOR_2_START, data[i]);             
+        }
+        EEPROM.commit();
+        sendDistanttoApp();
+    }
 }
 void motor3_stop(){
+    ECHOLN("MORTOR 3 STOP");
+    flag_when_run_done[MOTOR_3] = true;
 	digitalWrite(L3_UP, LOW);
 	digitalWrite(L3_DOWN, LOW);
+    if(save_distant_from_setup[MOTOR_3]){
+        save_distant_from_setup[MOTOR_3] = false;
+        value_distant_motor.distant_motor_3 = current_distant_motor.current_motor_3;
+        String data = String(value_distant_motor.distant_motor_3);
+        for (int i = EEPROOM_CYCLE_MOTOR_3_START; i <= EEPROOM_CYCLE_MOTOR_3_END; i++){ 
+            EEPROM.write(i, 0); 
+        }
+        for (int i = 0; i < data.length(); ++i){
+            EEPROM.write(i+EEPROOM_CYCLE_MOTOR_3_START, data[i]);             
+        }
+        EEPROM.commit();
+        sendDistanttoApp();
+    }
 }
 void motor4_stop(){
+    ECHOLN("MORTOR 4 STOP");
+    flag_when_run_done[MOTOR_4] = true;
 	digitalWrite(L4_UP, LOW);
 	digitalWrite(L4_DOWN, LOW);
+    if(save_distant_from_setup[MOTOR_4]){
+        save_distant_from_setup[MOTOR_4] = false;
+        value_distant_motor.distant_motor_4 = current_distant_motor.current_motor_4;
+        String data = String(value_distant_motor.distant_motor_4);
+        for (int i = EEPROOM_CYCLE_MOTOR_4_START; i <= EEPROOM_CYCLE_MOTOR_4_END; i++){ 
+            EEPROM.write(i, 0); 
+        }
+        for (int i = 0; i < data.length(); ++i){
+            EEPROM.write(i+EEPROOM_CYCLE_MOTOR_4_START, data[i]);             
+        }
+        EEPROM.commit();
+        sendDistanttoApp();
+    }
 }
 void motor5_stop(){
+    ECHOLN("MORTOR 5 STOP");
+    flag_when_run_done[MOTOR_5] = true;
 	digitalWrite(L5_UP, LOW);
 	digitalWrite(L5_DOWN, LOW);
+    if(save_distant_from_setup[MOTOR_5]){
+        save_distant_from_setup[MOTOR_5] = false;
+        value_distant_motor.distant_motor_5 = current_distant_motor.current_motor_5;
+        String data = String(value_distant_motor.distant_motor_5);
+        for (int i = EEPROOM_CYCLE_MOTOR_5_START; i <= EEPROOM_CYCLE_MOTOR_5_END; i++){ 
+            EEPROM.write(i, 0); 
+        }
+        for (int i = 0; i < data.length(); ++i){
+            EEPROM.write(i+EEPROOM_CYCLE_MOTOR_5_START, data[i]);             
+        }
+        EEPROM.commit();
+        sendDistanttoApp();
+    }
 }
 void motor6_stop(){
+    ECHOLN("MORTOR 6 STOP");
+    flag_when_run_done[MOTOR_6] = true;
 	digitalWrite(L6_UP, LOW);
 	digitalWrite(L6_DOWN, LOW);
+    if(save_distant_from_setup[MOTOR_6]){
+        save_distant_from_setup[MOTOR_6] = false;
+        value_distant_motor.distant_motor_6 = current_distant_motor.current_motor_6;
+        String data = String(value_distant_motor.distant_motor_6);
+        for (int i = EEPROOM_CYCLE_MOTOR_6_START; i <= EEPROOM_CYCLE_MOTOR_6_END; i++){ 
+            EEPROM.write(i, 0); 
+        }
+        for (int i = 0; i < data.length(); ++i){
+            EEPROM.write(i+EEPROOM_CYCLE_MOTOR_6_START, data[i]);             
+        }
+        EEPROM.commit();
+        sendDistanttoApp();
+    }
 }
 
 void motor1_open(){
-	digitalWrite(L1_UP, HIGH);
+    ECHOLN("MORTOR 1 OPEN");
+	flag_when_run_done[MOTOR_1] = false;
+    digitalWrite(L1_UP, HIGH);
 	digitalWrite(L1_DOWN, LOW);
 }
 void motor2_open(){
-	digitalWrite(L2_UP, HIGH);
+    ECHOLN("MORTOR 2 OPEN");
+	flag_when_run_done[MOTOR_2] = false;
+    digitalWrite(L2_UP, HIGH);
 	digitalWrite(L2_DOWN, LOW);
 }
 void motor3_open(){
-	digitalWrite(L3_UP, HIGH);
+    ECHOLN("MORTOR 3 OPEN");
+	flag_when_run_done[MOTOR_3] = false;
+    digitalWrite(L3_UP, HIGH);
 	digitalWrite(L3_DOWN, LOW);
 }
 void motor4_open(){
-	digitalWrite(L4_UP, HIGH);
+    ECHOLN("MORTOR 4 OPEN");
+	flag_when_run_done[MOTOR_4] = false;
+    digitalWrite(L4_UP, HIGH);
 	digitalWrite(L4_DOWN, LOW);
 }
 void motor5_open(){
-	digitalWrite(L5_UP, HIGH);
+    ECHOLN("MORTOR 5 OPEN");
+	flag_when_run_done[MOTOR_5] = false;
+    digitalWrite(L5_UP, HIGH);
 	digitalWrite(L5_DOWN, LOW);
 }
 void motor6_open(){
-	digitalWrite(L6_UP, HIGH);
+    ECHOLN("MORTOR 6 OPEN");
+	flag_when_run_done[MOTOR_6] = false;
+    digitalWrite(L6_UP, HIGH);
 	digitalWrite(L6_DOWN, LOW);
 }
 
 void motor1_close(){
-	digitalWrite(L1_UP, LOW);
+    ECHOLN("MORTOR 1 CLOSE");
+	flag_when_run_done[MOTOR_1] = false;
+    digitalWrite(L1_UP, LOW);
 	digitalWrite(L1_DOWN, HIGH);
 }
 void motor2_close(){
-	digitalWrite(L2_UP, LOW);
+    ECHOLN("MORTOR 2 CLOSE");
+	flag_when_run_done[MOTOR_2] = false;
+    digitalWrite(L2_UP, LOW);
 	digitalWrite(L2_DOWN, HIGH);
 }
 void motor3_close(){
-	digitalWrite(L3_UP, LOW);
+    ECHOLN("MORTOR 3 CLOSE");
+	flag_when_run_done[MOTOR_3] = false;
+    digitalWrite(L3_UP, LOW);
 	digitalWrite(L3_DOWN, HIGH);
 }
 void motor4_close(){
-	digitalWrite(L4_UP, LOW);
+    ECHOLN("MORTOR 4 CLOSE");
+	flag_when_run_done[MOTOR_4] = false;
+    digitalWrite(L4_UP, LOW);
 	digitalWrite(L4_DOWN, HIGH);
 }
 void motor5_close(){
-	digitalWrite(L5_UP, LOW);
+    ECHOLN("MORTOR 5 CLOSE");
+	flag_when_run_done[MOTOR_5] = false;
+    digitalWrite(L5_UP, LOW);
 	digitalWrite(L5_DOWN, HIGH);
 }
 void motor6_close(){
-	digitalWrite(L6_UP, LOW);
+    ECHOLN("MORTOR 6 CLOSE");
+	flag_when_run_done[MOTOR_6] = false;
+    digitalWrite(L6_UP, LOW);
 	digitalWrite(L6_DOWN, HIGH);
 }
 
  
-
-
-
-void readDataEeprom(){
-    //--------------Motor 1------------------------
-    String distantMotor1 = "";
-    for (int i = EEPROOM_CYCLE_MOTOR_1_START; i < EEPROOM_CYCLE_MOTOR_1_END; ++i){
-        distantMotor1 += char(EEPROM.read(i));
-    }
-    value_distant_motor.distant_motor_1 = distantMotor1.toInt();
-    ECHO("Read Distant Motor 1: ");
-    ECHOLN(value_distant_motor.distant_motor_1);
-    //--------------Motor 2------------------------
-    String distantMotor2 = "";
-    for (int i = EEPROOM_CYCLE_MOTOR_2_START; i < EEPROOM_CYCLE_MOTOR_2_END; ++i){
-        distantMotor2 += char(EEPROM.read(i));
-    }
-    value_distant_motor.distant_motor_2 = distantMotor2.toInt();
-    ECHO("Read Distant Motor 2: ");
-    ECHOLN(value_distant_motor.distant_motor_2);
-    //--------------Motor 3------------------------
-    String distantMotor3 = "";
-    for (int i = EEPROOM_CYCLE_MOTOR_3_START; i < EEPROOM_CYCLE_MOTOR_3_END; ++i){
-        distantMotor3 += char(EEPROM.read(i));
-    }
-    value_distant_motor.distant_motor_3 = distantMotor3.toInt();
-    ECHO("Read Distant Motor 3: ");
-    ECHOLN(value_distant_motor.distant_motor_3);
-    //--------------Motor 4------------------------
-    String distantMotor4 = "";
-    for (int i = EEPROOM_CYCLE_MOTOR_4_START; i < EEPROOM_CYCLE_MOTOR_4_END; ++i){
-        distantMotor4 += char(EEPROM.read(i));
-    }
-    value_distant_motor.distant_motor_4 = distantMotor1.toInt();
-    ECHO("Read Distant Motor 4: ");
-    ECHOLN(value_distant_motor.distant_motor_4);
-    //--------------Motor 5------------------------
-    String distantMotor5 = "";
-    for (int i = EEPROOM_CYCLE_MOTOR_5_START; i < EEPROOM_CYCLE_MOTOR_5_END; ++i){
-        distantMotor5 += char(EEPROM.read(i));
-    }
-    value_distant_motor.distant_motor_5 = distantMotor1.toInt();
-    ECHO("Read Distant Motor 5: ");
-    ECHOLN(value_distant_motor.distant_motor_5);
-    //--------------Motor 6------------------------
-    String distantMotor6 = "";
-    for (int i = EEPROOM_CYCLE_MOTOR_6_START; i < EEPROOM_CYCLE_MOTOR_6_END; ++i){
-        distantMotor6 += char(EEPROM.read(i));
-    }
-    value_distant_motor.distant_motor_6 = distantMotor1.toInt();
-    ECHO("Read Distant Motor 6: ");
-    ECHOLN(value_distant_motor.distant_motor_6);
-}
