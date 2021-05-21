@@ -20,8 +20,8 @@
 #define hallSensor5a            34
 #define hallSensor6a            35
 //#define hallSensor6a            15
-#define PIN_SET_UP_OPEN_CLOSE   0
-#define PIN_SWITCH_MODE_SETUP   15
+#define PIN_SET_UP_OPEN_CLOSE   0       //ON NORMAL MODE
+#define PIN_SWITCH_MODE_SETUP   15      //ON SETUP MODE
 
 
 #define EEPROOM_CYCLE_MOTOR_1_START     1

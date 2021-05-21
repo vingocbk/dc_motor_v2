@@ -1,6 +1,6 @@
 
 #include "task_motor.h"
-
+//#include "dc_motor_v2.h"
 #include "AppDebug.h"
 #include "EEPROM.h"
 
@@ -14,9 +14,10 @@ struct current_motor current_distant_motor;
 
 struct distant_motor value_distant_motor;
 
+bool flag_send_data_to_app = false;
 void sendDistanttoApp(){
-
-
+    ECHOLN("Send distant to the app!");
+    flag_send_data_to_app = true;
 }
 
 bool check_done_step(){

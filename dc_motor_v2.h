@@ -10,20 +10,27 @@
 #include "ArduinoJson.h"
 #include "BluetoothSerial.h"
 #include "AppDebug.h"
+#include "soc/rtc_wdt.h"        //for turn of WDT
+
+extern BluetoothSerial SerialBT;
 
 //--------for MODE OPEN SWITCH-----
 enum
 {
     OPEN_STEP_1,
     OPEN_STEP_2,
-    OPEN_STEP_3
+    OPEN_STEP_3,
+    DONE_MODE_OPEN,
+    STOP_MODE_OPEN
 };
 //--------for MODE CLOSE SWITCH-----
 enum
 {
     CLOSE_STEP_1,
     CLOSE_STEP_2,
-    CLOSE_STEP_3
+    CLOSE_STEP_3,
+    DONE_MODE_CLOSE,
+    STOP_MODE_CLOSE
 };
 //----mode run for each motor in each step
 enum
