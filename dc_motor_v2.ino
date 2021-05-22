@@ -46,173 +46,198 @@ void sendDatatoAppIarMotor6(){
 }
 
 void IRAM_ATTR dirhallSensor1(){
-	current_distant_motor.current_motor_1 ++;
-	ECHO("current_motor_1: ");
-	ECHOLN(current_distant_motor.current_motor_1);
-	if(!isModeConfig){	//check normal mode run
-		if(current_distant_motor.current_motor_1 == value_distant_motor.distant_motor_1){
-			motor1_stop();
-			if(check_done_step()){
-				beginChangeStep = true;
-				restartCurrentDistant();
-				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
-					mode_run_open ++;
+	static uint32_t timerFillterMotor1 = 0;
+	if(millis() >= (timerFillterMotor1 + TIMER_FILLTER)){
+		timerFillterMotor1 = millis();
+		current_distant_motor.current_motor_1 ++;
+		ECHO("current_motor_1: ");
+		ECHOLN(current_distant_motor.current_motor_1);
+		if(!isModeConfig){	//check normal mode run
+			if(current_distant_motor.current_motor_1 == value_distant_motor.distant_motor_1){
+				motor1_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
 				}
-				else{
-					mode_run_close ++;
+			}
+		}
+		else{	//check setup mode run
+			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
+				if(current_distant_motor.current_motor_1 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+					send_data_to_app_iar_err[MOTOR_1] = true;
 				}
 			}
 		}
 	}
-	else{	//check setup mode run
-		if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-			if(current_distant_motor.current_motor_1 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-				send_data_to_app_iar_err[MOTOR_1] = true;
-			}
-		}
-	}
+	
 }
 void IRAM_ATTR dirhallSensor2(){
-    current_distant_motor.current_motor_2 ++;
-	ECHO("current_motor_2: ");
-	ECHOLN(current_distant_motor.current_motor_2);
-	if(!isModeConfig){	//check normal mode run
-		if(current_distant_motor.current_motor_2 == value_distant_motor.distant_motor_2){
-			motor2_stop();
-			if(check_done_step()){
-				beginChangeStep = true;
-				restartCurrentDistant();
-				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
-					mode_run_open ++;
-				}
-				else{
-					mode_run_close ++;
+	static uint32_t timerFillterMotor2 = 0;
+	if(millis() >= (timerFillterMotor2 + TIMER_FILLTER)){
+		timerFillterMotor2 = millis();
+		current_distant_motor.current_motor_2 ++;
+		ECHO("current_motor_2: ");
+		ECHOLN(current_distant_motor.current_motor_2);
+		if(!isModeConfig){	//check normal mode run
+			if(current_distant_motor.current_motor_2 == value_distant_motor.distant_motor_2){
+				motor2_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
 				}
 			}
 		}
-	}
-	else{	//check setup mode run
-		if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-			if(current_distant_motor.current_motor_2 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-				mode_run_step_from_app = false;
-				save_distant_from_setup[MOTOR_2] = true;
-				motor2_stop();
+		else{	//check setup mode run
+			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
+				if(current_distant_motor.current_motor_2 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+					mode_run_step_from_app = false;
+					save_distant_from_setup[MOTOR_2] = true;
+					motor2_stop();
+				}
 			}
 		}
 	}
 }
 void IRAM_ATTR dirhallSensor3(){
-    current_distant_motor.current_motor_3 ++;
-	ECHO("current_motor_3: ");
-	ECHOLN(current_distant_motor.current_motor_3);
-	if(!isModeConfig){	//check normal mode run
-		if(current_distant_motor.current_motor_3 == value_distant_motor.distant_motor_3){
-			motor3_stop();
-			if(check_done_step()){
-				beginChangeStep = true;
-				restartCurrentDistant();
-				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
-					mode_run_open ++;
-				}
-				else{
-					mode_run_close ++;
+	static uint32_t timerFillterMotor3 = 0;
+	if(millis() >= (timerFillterMotor3 + TIMER_FILLTER)){
+		timerFillterMotor3 = millis();
+		current_distant_motor.current_motor_3 ++;
+		ECHO("current_motor_3: ");
+		ECHOLN(current_distant_motor.current_motor_3);
+		if(!isModeConfig){	//check normal mode run
+			if(current_distant_motor.current_motor_3 == value_distant_motor.distant_motor_3){
+				motor3_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
 				}
 			}
 		}
-	}
-	else{	//check setup mode run
-		if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-			if(current_distant_motor.current_motor_3 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-				mode_run_step_from_app = false;
-				save_distant_from_setup[MOTOR_3] = true;
-				motor3_stop();
+		else{	//check setup mode run
+			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
+				if(current_distant_motor.current_motor_3 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+					mode_run_step_from_app = false;
+					save_distant_from_setup[MOTOR_3] = true;
+					motor3_stop();
+				}
 			}
 		}
 	}
 }
 void IRAM_ATTR dirhallSensor4(){
-    current_distant_motor.current_motor_4 ++;
-	ECHO("current_motor_4: ");
-	ECHOLN(current_distant_motor.current_motor_4);
-	if(!isModeConfig){	//check normal mode run
-		if(current_distant_motor.current_motor_4 == value_distant_motor.distant_motor_4){
-			motor4_stop();
-			if(check_done_step()){
-				beginChangeStep = true;
-				restartCurrentDistant();
-				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
-					mode_run_open ++;
-				}
-				else{
-					mode_run_close ++;
+	static uint32_t timerFillterMotor4 = 0;
+	if(millis() >= (timerFillterMotor4 + TIMER_FILLTER)){
+		timerFillterMotor4 = millis();
+		current_distant_motor.current_motor_4 ++;
+		ECHO("current_motor_4: ");
+		ECHOLN(current_distant_motor.current_motor_4);
+		if(!isModeConfig){	//check normal mode run
+			if(current_distant_motor.current_motor_4 == value_distant_motor.distant_motor_4){
+				motor4_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
 				}
 			}
 		}
-	}
-	else{	//check setup mode run
-		if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-			if(current_distant_motor.current_motor_4 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-				mode_run_step_from_app = false;
-				save_distant_from_setup[MOTOR_4] = true;
-				motor4_stop();
+		else{	//check setup mode run
+			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
+				if(current_distant_motor.current_motor_4 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+					mode_run_step_from_app = false;
+					save_distant_from_setup[MOTOR_4] = true;
+					motor4_stop();
+				}
 			}
 		}
 	}
 }
 void IRAM_ATTR dirhallSensor5(){
-    current_distant_motor.current_motor_5 ++;
-	ECHO("current_motor_5: ");
-	ECHOLN(current_distant_motor.current_motor_5);
-	if(!isModeConfig){	//check normal mode run
-		if(current_distant_motor.current_motor_5 == value_distant_motor.distant_motor_5){
-			motor5_stop();
-			if(check_done_step()){
-				beginChangeStep = true;
-				restartCurrentDistant();
-				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
-					mode_run_open ++;
-				}
-				else{
-					mode_run_close ++;
+	static uint32_t timerFillterMotor5 = 0;
+	if(millis() >= (timerFillterMotor5 + TIMER_FILLTER)){
+		timerFillterMotor5 = millis();
+		current_distant_motor.current_motor_5 ++;
+		ECHO("current_motor_5: ");
+		ECHOLN(current_distant_motor.current_motor_5);
+		if(!isModeConfig){	//check normal mode run
+			if(current_distant_motor.current_motor_5 == value_distant_motor.distant_motor_5){
+				motor5_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
 				}
 			}
 		}
-	}
-	else{	//check setup mode run
-		if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-			if(current_distant_motor.current_motor_5 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-				mode_run_step_from_app = false;
-				save_distant_from_setup[MOTOR_5] = true;
-				motor5_stop();
+		else{	//check setup mode run
+			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
+				if(current_distant_motor.current_motor_5 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+					mode_run_step_from_app = false;
+					save_distant_from_setup[MOTOR_5] = true;
+					motor5_stop();
+				}
 			}
 		}
 	}
 }
 void IRAM_ATTR dirhallSensor6(){
-    current_distant_motor.current_motor_6 ++;
-	ECHO("current_motor_6: ");
-	ECHOLN(current_distant_motor.current_motor_6);
-	if(!isModeConfig){	//check normal mode run
-		if(current_distant_motor.current_motor_6 == value_distant_motor.distant_motor_6){
-			motor6_stop();
-			if(check_done_step()){
-				beginChangeStep = true;
-				restartCurrentDistant();
-				if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
-					mode_run_open ++;
-				}
-				else{
-					mode_run_close ++;
+	static uint32_t timerFillterMotor6 = 0;
+	if(millis() >= (timerFillterMotor6 + TIMER_FILLTER)){
+		timerFillterMotor6 = millis();
+		current_distant_motor.current_motor_6 ++;
+		ECHO("current_motor_6: ");
+		ECHOLN(current_distant_motor.current_motor_6);
+		if(!isModeConfig){	//check normal mode run
+			if(current_distant_motor.current_motor_6 == value_distant_motor.distant_motor_6){
+				motor6_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
 				}
 			}
 		}
-	}
-	else{	//check setup mode run
-		if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-			if(current_distant_motor.current_motor_6 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-				mode_run_step_from_app = false;
-				save_distant_from_setup[MOTOR_6] = true;
-				motor6_stop();
+		else{	//check setup mode run
+			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
+				if(current_distant_motor.current_motor_6 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+					mode_run_step_from_app = false;
+					save_distant_from_setup[MOTOR_6] = true;
+					motor6_stop();
+				}
 			}
 		}
 	}
