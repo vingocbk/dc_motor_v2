@@ -58,6 +58,7 @@ bool mode_run_step_from_app = false;
 uint8_t step_run_to_stop_app;
 uint32_t distant_in_time_press_step_run;
 
+bool mode_run_test_distant = false;
 
 int mode_run_open;
 int mode_run_close;

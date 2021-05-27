@@ -73,6 +73,12 @@ void IRAM_ATTR dirhallSensor1(){
 					send_data_to_app_iar_err[MOTOR_1] = true;
 				}
 			}
+			else if(mode_run_test_distant){
+				if(current_distant_motor.current_motor_1 == value_distant_motor.distant_motor_1){
+					mode_run_test_distant = false;
+					motor1_stop();
+				}
+			}
 		}
 	}
 	
@@ -105,6 +111,12 @@ void IRAM_ATTR dirhallSensor2(){
 					mode_run_step_from_app = false;
 					save_distant_from_setup[MOTOR_2] = true;
 					motor2_stop();
+				}
+			}
+			else if(mode_run_test_distant){
+				if(current_distant_motor.current_motor_2 == value_distant_motor.distant_motor_2){
+					mode_run_test_distant = false;
+					motor1_stop();
 				}
 			}
 		}
@@ -140,6 +152,12 @@ void IRAM_ATTR dirhallSensor3(){
 					motor3_stop();
 				}
 			}
+			else if(mode_run_test_distant){
+				if(current_distant_motor.current_motor_3 == value_distant_motor.distant_motor_3){
+					mode_run_test_distant = false;
+					motor1_stop();
+				}
+			}
 		}
 	}
 }
@@ -171,6 +189,12 @@ void IRAM_ATTR dirhallSensor4(){
 					mode_run_step_from_app = false;
 					save_distant_from_setup[MOTOR_4] = true;
 					motor4_stop();
+				}
+			}
+			else if(mode_run_test_distant){
+				if(current_distant_motor.current_motor_4 == value_distant_motor.distant_motor_4){
+					mode_run_test_distant = false;
+					motor1_stop();
 				}
 			}
 		}
@@ -206,6 +230,12 @@ void IRAM_ATTR dirhallSensor5(){
 					motor5_stop();
 				}
 			}
+			else if(mode_run_test_distant){
+				if(current_distant_motor.current_motor_5 == value_distant_motor.distant_motor_5){
+					mode_run_test_distant = false;
+					motor1_stop();
+				}
+			}
 		}
 	}
 }
@@ -237,6 +267,12 @@ void IRAM_ATTR dirhallSensor6(){
 					mode_run_step_from_app = false;
 					save_distant_from_setup[MOTOR_6] = true;
 					motor6_stop();
+				}
+			}
+			else if(mode_run_test_distant){
+				if(current_distant_motor.current_motor_6 == value_distant_motor.distant_motor_6){
+					mode_run_test_distant = false;
+					motor1_stop();
 				}
 			}
 		}
@@ -611,8 +647,70 @@ void callbackBluetooth(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
 							}
 						}
 					}
+					else if(type == "run_test_distant"){
+						String command = rootData["command"];
+						if(name == "motor1"){
+							mode_run_test_distant = true;
+							current_distant_motor.current_motor_1 = 0;
+							if(command == "open"){
+								motor1_open();
+							}
+							else if(command == "close"){
+								motor1_close();
+							}
+						}
+						else if(name == "motor2"){
+							mode_run_test_distant = true;
+							current_distant_motor.current_motor_2 = 0;
+							if(command == "open"){
+								motor2_open();
+							}
+							else if(command == "close"){
+								motor2_close();
+							}
+						}
+						else if(name == "motor3"){
+							mode_run_test_distant = true;
+							current_distant_motor.current_motor_3 = 0;
+							if(command == "open"){
+								motor3_open();
+							}
+							else if(command == "close"){
+								motor3_close();
+							}
+						}
+						else if(name == "motor4"){
+							mode_run_test_distant = true;
+							current_distant_motor.current_motor_4 = 0;
+							if(command == "open"){
+								motor4_open();
+							}
+							else if(command == "close"){
+								motor4_close();
+							}
+						}
+						else if(name == "motor5"){
+							mode_run_test_distant = true;
+							current_distant_motor.current_motor_5 = 0;
+							if(command == "open"){
+								motor5_open();
+							}
+							else if(command == "close"){
+								motor5_close();
+							}
+						}
+						else if(name == "motor6"){
+							mode_run_test_distant = true;
+							current_distant_motor.current_motor_6 = 0;
+							if(command == "open"){
+								motor6_open();
+							}
+							else if(command == "close"){
+								motor6_close();
+							}
+						}
+					}
 				}
-				
 			}
         }
 		break;
@@ -657,6 +755,10 @@ void setup(){
     WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
 	rtc_wdt_protect_off();			//for turn off WDT
 	rtc_wdt_disable();
+
+	rtc_wdt_set_length_of_reset_signal(RTC_WDT_SYS_RESET_SIG, RTC_WDT_LENGTH_3_2us);
+	rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_SYSTEM);
+	rtc_wdt_set_time(RTC_WDT_STAGE0, 250);
 
 	Serial.begin(BAUD_RATE_SERIAL);
     EEPROM.begin(MAX_SIZE_EEPROM_BUFFER);
@@ -1317,6 +1419,6 @@ void loop(){
 
 	rtc_wdt_feed();
 	vTaskDelay(pdMS_TO_TICKS(100));
-	delay(10);
+	delay(100);
 
 }
