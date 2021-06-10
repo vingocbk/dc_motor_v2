@@ -39,10 +39,11 @@
 
 
 
-#define BAUD_RATE_SERIAL		115200
-#define MAX_SIZE_EEPROM_BUFFER	256
-#define MAX_RESPONSE_LENGTH     512
-#define MAX_NUMBER_MOTOR        6
+#define BAUD_RATE_SERIAL		    115200
+#define MAX_SIZE_EEPROM_BUFFER	    256
+#define MAX_RESPONSE_LENGTH         512
+#define MAX_NUMBER_MOTOR            6
+#define TIME_CHECK_MOTOR_QUA_TAI    1000
 
 #define TIMER_FILLTER           10      //ms
 enum

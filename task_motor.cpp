@@ -3,12 +3,15 @@
 //#include "dc_motor_v2.h"
 #include "AppDebug.h"
 #include "EEPROM.h"
+#include "soc/rtc_wdt.h"        //for turn of WDT
+
 
 //----when all motor run done, ---> next step to run 
 bool flag_when_run_done[MAX_NUMBER_MOTOR] = {false, false, false, false, false, false};
 
 //----save distant when motor stop, in mode get edit text on app or mode run step on app
 bool save_distant_from_setup[MAX_NUMBER_MOTOR] = {false, false, false, false, false, false};
+bool status_motor_is_running[MAX_NUMBER_MOTOR] = {false, false, false, false, false, false};
 
 struct current_motor current_distant_motor;
 
@@ -19,6 +22,7 @@ void sendDistanttoApp(){
     ECHOLN("Send distant to the app!");
     flag_send_data_to_app = true;
 }
+
 
 bool check_done_step(){
     if(flag_when_run_done[MOTOR_1]
@@ -37,6 +41,7 @@ bool check_done_step(){
 
 void motor1_stop(){
     ECHOLN("MORTOR 1 STOP");
+    status_motor_is_running[MOTOR_1] = false;
     flag_when_run_done[MOTOR_1] = true;
 	digitalWrite(L1_UP, LOW);
 	digitalWrite(L1_DOWN, LOW);
@@ -56,6 +61,7 @@ void motor1_stop(){
 }
 void motor2_stop(){
     ECHOLN("MORTOR 2 STOP");
+    status_motor_is_running[MOTOR_2] = false;
     flag_when_run_done[MOTOR_2] = true;
 	digitalWrite(L2_UP, LOW);
 	digitalWrite(L2_DOWN, LOW);
@@ -75,6 +81,7 @@ void motor2_stop(){
 }
 void motor3_stop(){
     ECHOLN("MORTOR 3 STOP");
+    status_motor_is_running[MOTOR_3] = false;
     flag_when_run_done[MOTOR_3] = true;
 	digitalWrite(L3_UP, LOW);
 	digitalWrite(L3_DOWN, LOW);
@@ -94,6 +101,7 @@ void motor3_stop(){
 }
 void motor4_stop(){
     ECHOLN("MORTOR 4 STOP");
+    status_motor_is_running[MOTOR_4] = false;
     flag_when_run_done[MOTOR_4] = true;
 	digitalWrite(L4_UP, LOW);
 	digitalWrite(L4_DOWN, LOW);
@@ -112,7 +120,9 @@ void motor4_stop(){
     }
 }
 void motor5_stop(){
+    // rtc_wdt_feed();
     ECHOLN("MORTOR 5 STOP");
+    status_motor_is_running[MOTOR_5] = false;
     flag_when_run_done[MOTOR_5] = true;
 	digitalWrite(L5_UP, LOW);
 	digitalWrite(L5_DOWN, LOW);
@@ -127,12 +137,15 @@ void motor5_stop(){
             EEPROM.write(i+EEPROOM_CYCLE_MOTOR_5_START, data[i]);             
         }
         EEPROM.commit();
+        ECHOLN("MORTOR 5 STOP");
         sendDistanttoApp();
+        ECHOLN("MORTOR 5 STOP");
     }
 }
 void motor6_stop(){
     ECHOLN("MORTOR 6 STOP");
     flag_when_run_done[MOTOR_6] = true;
+    status_motor_is_running[MOTOR_6] = false;
 	digitalWrite(L6_UP, LOW);
 	digitalWrite(L6_DOWN, LOW);
     if(save_distant_from_setup[MOTOR_6]){
@@ -152,36 +165,42 @@ void motor6_stop(){
 
 void motor1_open(){
     ECHOLN("MORTOR 1 OPEN");
+    status_motor_is_running[MOTOR_1] = true;
 	flag_when_run_done[MOTOR_1] = false;
     digitalWrite(L1_UP, HIGH);
 	digitalWrite(L1_DOWN, LOW);
 }
 void motor2_open(){
     ECHOLN("MORTOR 2 OPEN");
+    status_motor_is_running[MOTOR_2] = true;
 	flag_when_run_done[MOTOR_2] = false;
     digitalWrite(L2_UP, HIGH);
 	digitalWrite(L2_DOWN, LOW);
 }
 void motor3_open(){
     ECHOLN("MORTOR 3 OPEN");
+    status_motor_is_running[MOTOR_3] = true;
 	flag_when_run_done[MOTOR_3] = false;
     digitalWrite(L3_UP, HIGH);
 	digitalWrite(L3_DOWN, LOW);
 }
 void motor4_open(){
     ECHOLN("MORTOR 4 OPEN");
+    status_motor_is_running[MOTOR_4] = true;
 	flag_when_run_done[MOTOR_4] = false;
     digitalWrite(L4_UP, HIGH);
 	digitalWrite(L4_DOWN, LOW);
 }
 void motor5_open(){
     ECHOLN("MORTOR 5 OPEN");
+    status_motor_is_running[MOTOR_5] = true;
 	flag_when_run_done[MOTOR_5] = false;
     digitalWrite(L5_UP, HIGH);
 	digitalWrite(L5_DOWN, LOW);
 }
 void motor6_open(){
     ECHOLN("MORTOR 6 OPEN");
+    status_motor_is_running[MOTOR_6] = true;
 	flag_when_run_done[MOTOR_6] = false;
     digitalWrite(L6_UP, HIGH);
 	digitalWrite(L6_DOWN, LOW);
@@ -189,36 +208,42 @@ void motor6_open(){
 
 void motor1_close(){
     ECHOLN("MORTOR 1 CLOSE");
+    status_motor_is_running[MOTOR_1] = true;
 	flag_when_run_done[MOTOR_1] = false;
     digitalWrite(L1_UP, LOW);
 	digitalWrite(L1_DOWN, HIGH);
 }
 void motor2_close(){
     ECHOLN("MORTOR 2 CLOSE");
+    status_motor_is_running[MOTOR_2] = true;
 	flag_when_run_done[MOTOR_2] = false;
     digitalWrite(L2_UP, LOW);
 	digitalWrite(L2_DOWN, HIGH);
 }
 void motor3_close(){
     ECHOLN("MORTOR 3 CLOSE");
+    status_motor_is_running[MOTOR_3] = true;
 	flag_when_run_done[MOTOR_3] = false;
     digitalWrite(L3_UP, LOW);
 	digitalWrite(L3_DOWN, HIGH);
 }
 void motor4_close(){
     ECHOLN("MORTOR 4 CLOSE");
+    status_motor_is_running[MOTOR_4] = true;
 	flag_when_run_done[MOTOR_4] = false;
     digitalWrite(L4_UP, LOW);
 	digitalWrite(L4_DOWN, HIGH);
 }
 void motor5_close(){
     ECHOLN("MORTOR 5 CLOSE");
+    status_motor_is_running[MOTOR_5] = true;
 	flag_when_run_done[MOTOR_5] = false;
     digitalWrite(L5_UP, LOW);
 	digitalWrite(L5_DOWN, HIGH);
 }
 void motor6_close(){
     ECHOLN("MORTOR 6 CLOSE");
+    status_motor_is_running[MOTOR_6] = true;
 	flag_when_run_done[MOTOR_6] = false;
     digitalWrite(L6_UP, LOW);
 	digitalWrite(L6_DOWN, HIGH);

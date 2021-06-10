@@ -5,6 +5,7 @@
 
 extern bool flag_when_run_done[MAX_NUMBER_MOTOR];
 extern bool save_distant_from_setup[MAX_NUMBER_MOTOR];
+extern bool status_motor_is_running[MAX_NUMBER_MOTOR];
 extern bool flag_send_data_to_app;
 //---variable for value current off positon motor
 struct current_motor

@@ -11,50 +11,32 @@
 
 BluetoothSerial SerialBT;
 
-bool send_data_to_app_iar_err[MAX_NUMBER_MOTOR] = {false, false, false, false, false, false};
-
 //because send data on interrupt may be error on wdt, so can send on loop()
-void sendDatatoAppIarMotor1(){
-	mode_run_step_from_app = false;
-	save_distant_from_setup[MOTOR_1] = true;
-	motor1_stop();
-}
-void sendDatatoAppIarMotor2(){
-	mode_run_step_from_app = false;
-	save_distant_from_setup[MOTOR_2] = true;
-	motor2_stop();
-}
-void sendDatatoAppIarMotor3(){
-	mode_run_step_from_app = false;
-	save_distant_from_setup[MOTOR_3] = true;
-	motor3_stop();
-}
-void sendDatatoAppIarMotor4(){
-	mode_run_step_from_app = false;
-	save_distant_from_setup[MOTOR_4] = true;
-	motor4_stop();
-}
-void sendDatatoAppIarMotor5(){
-	mode_run_step_from_app = false;
-	save_distant_from_setup[MOTOR_5] = true;
-	motor5_stop();
-}
-void sendDatatoAppIarMotor6(){
-	mode_run_step_from_app = false;
-	save_distant_from_setup[MOTOR_6] = true;
-	motor6_stop();
-}
+bool change_stop_function_from_iar_to_loop[MAX_NUMBER_MOTOR] = {false, false, false, false, false, false};
+
+
 
 void IRAM_ATTR dirhallSensor1(){
 	static uint32_t timerFillterMotor1 = 0;
 	if(millis() >= (timerFillterMotor1 + TIMER_FILLTER)){
 		timerFillterMotor1 = millis();
-		current_distant_motor.current_motor_1 ++;
-		ECHO("current_motor_1: ");
-		ECHOLN(current_distant_motor.current_motor_1);
+		if(!mode_run_step_from_app){	//check for count -- step
+			current_distant_motor.current_motor_1 ++;
+		}
+		else{
+			if(digitalRead(L1_UP)){
+				current_distant_motor.current_motor_1 ++;
+			}
+			else{
+				current_distant_motor.current_motor_1 --;
+			}
+		}
+		// ECHO("current_motor_1: ");
+		// ECHOLN(current_distant_motor.current_motor_1);
 		if(!isModeConfig){	//check normal mode run
 			if(current_distant_motor.current_motor_1 == value_distant_motor.distant_motor_1){
-				motor1_stop();
+				change_stop_function_from_iar_to_loop[MOTOR_1] = true;		//set motor 1 stop
+				flag_when_run_done[MOTOR_1] = true;
 				if(check_done_step()){
 					beginChangeStep = true;
 					restartCurrentDistant();
@@ -69,14 +51,27 @@ void IRAM_ATTR dirhallSensor1(){
 		}
 		else{	//check setup mode run
 			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-				if(current_distant_motor.current_motor_1 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-					send_data_to_app_iar_err[MOTOR_1] = true;
+				if(digitalRead(L1_UP)){
+					if(current_distant_motor.current_motor_1 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_1] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_1] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_1] = true;		//set motor 1 stop
+					}
+				}
+				else{
+					if(current_distant_motor.current_motor_1 == (distant_in_time_press_step_run - step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_1] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_1] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_1] = true;		//set motor 1 stop
+					}
 				}
 			}
 			else if(mode_run_test_distant){
 				if(current_distant_motor.current_motor_1 == value_distant_motor.distant_motor_1){
 					mode_run_test_distant = false;
-					motor1_stop();
+					change_stop_function_from_iar_to_loop[MOTOR_1] = true;		//set motor 1 stop
 				}
 			}
 		}
@@ -87,12 +82,23 @@ void IRAM_ATTR dirhallSensor2(){
 	static uint32_t timerFillterMotor2 = 0;
 	if(millis() >= (timerFillterMotor2 + TIMER_FILLTER)){
 		timerFillterMotor2 = millis();
-		current_distant_motor.current_motor_2 ++;
-		ECHO("current_motor_2: ");
-		ECHOLN(current_distant_motor.current_motor_2);
+		if(!mode_run_step_from_app){	//check for count -- step
+			current_distant_motor.current_motor_2 ++;
+		}
+		else{
+			if(digitalRead(L2_UP)){
+				current_distant_motor.current_motor_2 ++;
+			}
+			else{
+				current_distant_motor.current_motor_2 --;
+			}
+		}
+		// ECHO("current_motor_2: ");
+		// ECHOLN(current_distant_motor.current_motor_2);
 		if(!isModeConfig){	//check normal mode run
 			if(current_distant_motor.current_motor_2 == value_distant_motor.distant_motor_2){
-				motor2_stop();
+				change_stop_function_from_iar_to_loop[MOTOR_2] = true;		//set motor 2 stop
+				flag_when_run_done[MOTOR_2] = true;
 				if(check_done_step()){
 					beginChangeStep = true;
 					restartCurrentDistant();
@@ -107,16 +113,27 @@ void IRAM_ATTR dirhallSensor2(){
 		}
 		else{	//check setup mode run
 			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-				if(current_distant_motor.current_motor_2 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-					mode_run_step_from_app = false;
-					save_distant_from_setup[MOTOR_2] = true;
-					motor2_stop();
+				if(digitalRead(L2_UP)){
+					if(current_distant_motor.current_motor_2 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_2] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_2] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_2] = true;		//set motor 2 stop
+					}
+				}
+				else{
+					if(current_distant_motor.current_motor_2 == (distant_in_time_press_step_run - step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_2] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_2] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_2] = true;		//set motor 2 stop
+					}
 				}
 			}
 			else if(mode_run_test_distant){
 				if(current_distant_motor.current_motor_2 == value_distant_motor.distant_motor_2){
 					mode_run_test_distant = false;
-					motor1_stop();
+					change_stop_function_from_iar_to_loop[MOTOR_2] = true;		//set motor 2 stop
 				}
 			}
 		}
@@ -126,12 +143,23 @@ void IRAM_ATTR dirhallSensor3(){
 	static uint32_t timerFillterMotor3 = 0;
 	if(millis() >= (timerFillterMotor3 + TIMER_FILLTER)){
 		timerFillterMotor3 = millis();
-		current_distant_motor.current_motor_3 ++;
-		ECHO("current_motor_3: ");
-		ECHOLN(current_distant_motor.current_motor_3);
+		if(!mode_run_step_from_app){	//check for count -- step
+			current_distant_motor.current_motor_3 ++;
+		}
+		else{
+			if(digitalRead(L3_UP)){
+				current_distant_motor.current_motor_3 ++;
+			}
+			else{
+				current_distant_motor.current_motor_3 --;
+			}
+		}
+		// ECHO("current_motor_3: ");
+		// ECHOLN(current_distant_motor.current_motor_3);
 		if(!isModeConfig){	//check normal mode run
 			if(current_distant_motor.current_motor_3 == value_distant_motor.distant_motor_3){
-				motor3_stop();
+				change_stop_function_from_iar_to_loop[MOTOR_3] = true;		//set motor 3 stop
+				flag_when_run_done[MOTOR_3] = true;
 				if(check_done_step()){
 					beginChangeStep = true;
 					restartCurrentDistant();
@@ -146,16 +174,27 @@ void IRAM_ATTR dirhallSensor3(){
 		}
 		else{	//check setup mode run
 			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-				if(current_distant_motor.current_motor_3 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-					mode_run_step_from_app = false;
-					save_distant_from_setup[MOTOR_3] = true;
-					motor3_stop();
+				if(digitalRead(L3_UP)){
+					if(current_distant_motor.current_motor_3 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_3] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_3] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_3] = true;		//set motor 3 stop
+					}
+				}
+				else{
+					if(current_distant_motor.current_motor_3 == (distant_in_time_press_step_run - step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_3] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_3] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_3] = true;		//set motor 3 stop
+					}
 				}
 			}
 			else if(mode_run_test_distant){
 				if(current_distant_motor.current_motor_3 == value_distant_motor.distant_motor_3){
 					mode_run_test_distant = false;
-					motor1_stop();
+					change_stop_function_from_iar_to_loop[MOTOR_3] = true;		//set motor 3 stop
 				}
 			}
 		}
@@ -165,12 +204,23 @@ void IRAM_ATTR dirhallSensor4(){
 	static uint32_t timerFillterMotor4 = 0;
 	if(millis() >= (timerFillterMotor4 + TIMER_FILLTER)){
 		timerFillterMotor4 = millis();
-		current_distant_motor.current_motor_4 ++;
-		ECHO("current_motor_4: ");
-		ECHOLN(current_distant_motor.current_motor_4);
+		if(!mode_run_step_from_app){	//check for count -- step
+			current_distant_motor.current_motor_4 ++;
+		}
+		else{
+			if(digitalRead(L4_UP)){
+				current_distant_motor.current_motor_4 ++;
+			}
+			else{
+				current_distant_motor.current_motor_4 --;
+			}
+		}
+		// ECHO("current_motor_4: ");
+		// ECHOLN(current_distant_motor.current_motor_4);
 		if(!isModeConfig){	//check normal mode run
 			if(current_distant_motor.current_motor_4 == value_distant_motor.distant_motor_4){
-				motor4_stop();
+				change_stop_function_from_iar_to_loop[MOTOR_4] = true;		//set motor 4 stop
+				flag_when_run_done[MOTOR_4] = true;
 				if(check_done_step()){
 					beginChangeStep = true;
 					restartCurrentDistant();
@@ -185,16 +235,27 @@ void IRAM_ATTR dirhallSensor4(){
 		}
 		else{	//check setup mode run
 			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-				if(current_distant_motor.current_motor_4 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-					mode_run_step_from_app = false;
-					save_distant_from_setup[MOTOR_4] = true;
-					motor4_stop();
+				if(digitalRead(L4_UP)){
+					if(current_distant_motor.current_motor_4 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_4] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_4] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_4] = true;		//set motor 4 stop
+					}
+				}
+				else{
+					if(current_distant_motor.current_motor_4 == (distant_in_time_press_step_run - step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_4] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_4] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_4] = true;		//set motor 4 stop
+					}
 				}
 			}
 			else if(mode_run_test_distant){
 				if(current_distant_motor.current_motor_4 == value_distant_motor.distant_motor_4){
 					mode_run_test_distant = false;
-					motor1_stop();
+					change_stop_function_from_iar_to_loop[MOTOR_4] = true;		//set motor 4 stop
 				}
 			}
 		}
@@ -204,12 +265,23 @@ void IRAM_ATTR dirhallSensor5(){
 	static uint32_t timerFillterMotor5 = 0;
 	if(millis() >= (timerFillterMotor5 + TIMER_FILLTER)){
 		timerFillterMotor5 = millis();
-		current_distant_motor.current_motor_5 ++;
-		ECHO("current_motor_5: ");
-		ECHOLN(current_distant_motor.current_motor_5);
+		if(!mode_run_step_from_app){	//check for count -- step
+			current_distant_motor.current_motor_5 ++;
+		}
+		else{
+			if(digitalRead(L5_UP)){
+				current_distant_motor.current_motor_5 ++;
+			}
+			else{
+				current_distant_motor.current_motor_5 --;
+			}
+		}
+		// ECHO("current_motor_5: ");
+		// ECHOLN(current_distant_motor.current_motor_5);
 		if(!isModeConfig){	//check normal mode run
 			if(current_distant_motor.current_motor_5 == value_distant_motor.distant_motor_5){
-				motor5_stop();
+				change_stop_function_from_iar_to_loop[MOTOR_5] = true;		//set motor 5 stop
+				flag_when_run_done[MOTOR_5] = true;
 				if(check_done_step()){
 					beginChangeStep = true;
 					restartCurrentDistant();
@@ -224,16 +296,27 @@ void IRAM_ATTR dirhallSensor5(){
 		}
 		else{	//check setup mode run
 			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-				if(current_distant_motor.current_motor_5 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-					mode_run_step_from_app = false;
-					save_distant_from_setup[MOTOR_5] = true;
-					motor5_stop();
+				if(digitalRead(L5_UP)){
+					if(current_distant_motor.current_motor_5 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_5] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_5] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_5] = true;		//set motor 5 stop
+					}
+				}
+				else{
+					if(current_distant_motor.current_motor_5 == (distant_in_time_press_step_run - step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_5] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_5] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_5] = true;		//set motor 5 stop
+					}
 				}
 			}
 			else if(mode_run_test_distant){
 				if(current_distant_motor.current_motor_5 == value_distant_motor.distant_motor_5){
 					mode_run_test_distant = false;
-					motor1_stop();
+					change_stop_function_from_iar_to_loop[MOTOR_5] = true;		//set motor 5 stop
 				}
 			}
 		}
@@ -243,12 +326,23 @@ void IRAM_ATTR dirhallSensor6(){
 	static uint32_t timerFillterMotor6 = 0;
 	if(millis() >= (timerFillterMotor6 + TIMER_FILLTER)){
 		timerFillterMotor6 = millis();
-		current_distant_motor.current_motor_6 ++;
-		ECHO("current_motor_6: ");
-		ECHOLN(current_distant_motor.current_motor_6);
+		if(!mode_run_step_from_app){	//check for count -- step
+			current_distant_motor.current_motor_6 ++;
+		}
+		else{
+			if(digitalRead(L6_UP)){
+				current_distant_motor.current_motor_6 ++;
+			}
+			else{
+				current_distant_motor.current_motor_6 --;
+			}
+		}
+		// ECHO("current_motor_6: ");
+		// ECHOLN(current_distant_motor.current_motor_6);
 		if(!isModeConfig){	//check normal mode run
 			if(current_distant_motor.current_motor_6 == value_distant_motor.distant_motor_6){
-				motor6_stop();
+				change_stop_function_from_iar_to_loop[MOTOR_6] = true;		//set motor 6 stop
+				flag_when_run_done[MOTOR_6] = true;
 				if(check_done_step()){
 					beginChangeStep = true;
 					restartCurrentDistant();
@@ -263,16 +357,27 @@ void IRAM_ATTR dirhallSensor6(){
 		}
 		else{	//check setup mode run
 			if(mode_run_step_from_app){		//when stop on mode run step then save data distaant
-				if(current_distant_motor.current_motor_6 == (distant_in_time_press_step_run + step_run_to_stop_app)){
-					mode_run_step_from_app = false;
-					save_distant_from_setup[MOTOR_6] = true;
-					motor6_stop();
+				if(digitalRead(L6_UP)){
+					if(current_distant_motor.current_motor_6 == (distant_in_time_press_step_run + step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_6] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_6] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_6] = true;		//set motor 6 stop
+					}
+				}
+				else{
+					if(current_distant_motor.current_motor_6 == (distant_in_time_press_step_run - step_run_to_stop_app)){
+						// send_data_to_app_iar_err[MOTOR_6] = true;
+						mode_run_step_from_app = false;
+						save_distant_from_setup[MOTOR_6] = true;
+						change_stop_function_from_iar_to_loop[MOTOR_6] = true;		//set motor 6 stop
+					}
 				}
 			}
 			else if(mode_run_test_distant){
 				if(current_distant_motor.current_motor_6 == value_distant_motor.distant_motor_6){
 					mode_run_test_distant = false;
-					motor1_stop();
+					change_stop_function_from_iar_to_loop[MOTOR_6] = true;		//set motor 6 stop
 				}
 			}
 		}
@@ -534,54 +639,54 @@ void callbackBluetooth(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
 							if(command == "open"){
 								motor1_open();
 							}
-							// else if(command == "close"){
-							// 	motor1_close();
-							// }
+							else if(command == "close"){
+								motor1_close();
+							}
 						}
 						else if(name == "motor2"){
 							distant_in_time_press_step_run = current_distant_motor.current_motor_2;
 							if(command == "open"){
 								motor2_open();
 							}
-							// else if(command == "close"){
-							// 	motor2_close();
-							// }
+							else if(command == "close"){
+								motor2_close();
+							}
 						}
 						else if(name == "motor3"){
 							distant_in_time_press_step_run = current_distant_motor.current_motor_3;
 							if(command == "open"){
 								motor3_open();
 							}
-							// else if(command == "close"){
-							// 	motor3_close();
-							// }
+							else if(command == "close"){
+								motor3_close();
+							}
 						}
 						else if(name == "motor4"){
 							distant_in_time_press_step_run = current_distant_motor.current_motor_4;
 							if(command == "open"){
 								motor4_open();
 							}
-							// else if(command == "close"){
-							// 	motor4_close();
-							// }
+							else if(command == "close"){
+								motor4_close();
+							}
 						}
 						else if(name == "motor5"){
 							distant_in_time_press_step_run = current_distant_motor.current_motor_5;
 							if(command == "open"){
 								motor5_open();
 							}
-							// else if(command == "close"){
-							// 	motor5_close();
-							// }
+							else if(command == "close"){
+								motor5_close();
+							}
 						}
 						else if(name == "motor6"){
 							distant_in_time_press_step_run = current_distant_motor.current_motor_6;
 							if(command == "open"){
 								motor6_open();
 							}
-							// else if(command == "close"){
-							// 	motor6_close();
-							// }
+							else if(command == "close"){
+								motor6_close();
+							}
 						}
 					}
 					else if(type == "run_save_distant"){
@@ -750,11 +855,171 @@ void checkButtonSwitchSetup(){
 }
 
 
+void check_motor_stop_qua_tai(){
+	if(status_motor_is_running[MOTOR_1]){
+		if(millis() >= time_check_motor_qua_tai[MOTOR_1] + TIME_CHECK_MOTOR_QUA_TAI){
+			time_check_motor_qua_tai[MOTOR_1] = millis();
+			if(pulse_current_check_motor_qua_tai[MOTOR_1] == current_distant_motor.current_motor_1){
+				//QUA TAI
+				ECHOLN("QUA TAI!!!");
+				if(!save_distant_from_setup[MOTOR_1]){
+					current_distant_motor.current_motor_1 = 0;
+					pulse_current_check_motor_qua_tai[MOTOR_1] = 1;
+				}
+				motor1_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
+				}
+			}else{
+				pulse_current_check_motor_qua_tai[MOTOR_1] = current_distant_motor.current_motor_1;
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_2]){
+		if(millis() >= time_check_motor_qua_tai[MOTOR_2] + TIME_CHECK_MOTOR_QUA_TAI){
+			time_check_motor_qua_tai[MOTOR_2] = millis();
+			if(pulse_current_check_motor_qua_tai[MOTOR_2] == current_distant_motor.current_motor_2){
+				//QUA TAI
+				ECHOLN("QUA TAI!!!");
+				if(!save_distant_from_setup[MOTOR_2]){
+					current_distant_motor.current_motor_2 = 0;
+					pulse_current_check_motor_qua_tai[MOTOR_2] = 1;
+				}
+				motor2_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
+				}
+			}else{
+				pulse_current_check_motor_qua_tai[MOTOR_2] = current_distant_motor.current_motor_2;
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_3]){
+		if(millis() >= time_check_motor_qua_tai[MOTOR_3] + TIME_CHECK_MOTOR_QUA_TAI){
+			time_check_motor_qua_tai[MOTOR_3] = millis();
+			if(pulse_current_check_motor_qua_tai[MOTOR_3] == current_distant_motor.current_motor_3){
+				//QUA TAI
+				ECHOLN("QUA TAI!!!");
+				if(!save_distant_from_setup[MOTOR_3]){
+					current_distant_motor.current_motor_3 = 0;
+					pulse_current_check_motor_qua_tai[MOTOR_3] = 1;
+				}
+				motor3_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
+				}
+			}else{
+				pulse_current_check_motor_qua_tai[MOTOR_3] = current_distant_motor.current_motor_3;
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_4]){
+		if(millis() >= time_check_motor_qua_tai[MOTOR_4] + TIME_CHECK_MOTOR_QUA_TAI){
+			time_check_motor_qua_tai[MOTOR_4] = millis();
+			if(pulse_current_check_motor_qua_tai[MOTOR_4] == current_distant_motor.current_motor_4){
+				//QUA TAI
+				ECHOLN("QUA TAI!!!");
+				if(!save_distant_from_setup[MOTOR_4]){
+					current_distant_motor.current_motor_4 = 0;
+					pulse_current_check_motor_qua_tai[MOTOR_4] = 1;
+				}
+				motor4_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
+				}
+			}else{
+				pulse_current_check_motor_qua_tai[MOTOR_4] = current_distant_motor.current_motor_4;
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_5]){
+		if(millis() >= time_check_motor_qua_tai[MOTOR_5] + TIME_CHECK_MOTOR_QUA_TAI){
+			time_check_motor_qua_tai[MOTOR_5] = millis();
+			if(pulse_current_check_motor_qua_tai[MOTOR_5] == current_distant_motor.current_motor_5){
+				//QUA TAI
+				ECHOLN("QUA TAI!!!");
+				if(!save_distant_from_setup[MOTOR_5]){
+					current_distant_motor.current_motor_5 = 0;
+					pulse_current_check_motor_qua_tai[MOTOR_5] = 1;
+				}
+				motor5_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
+				}
+			}else{
+				pulse_current_check_motor_qua_tai[MOTOR_5] = current_distant_motor.current_motor_5;
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_6]){
+		if(millis() >= time_check_motor_qua_tai[MOTOR_6] + TIME_CHECK_MOTOR_QUA_TAI){
+			time_check_motor_qua_tai[MOTOR_6] = millis();
+			if(pulse_current_check_motor_qua_tai[MOTOR_6] == current_distant_motor.current_motor_6){
+				//QUA TAI
+				ECHOLN("QUA TAI!!!");
+				if(!save_distant_from_setup[MOTOR_6]){
+					current_distant_motor.current_motor_6 = 0;
+					pulse_current_check_motor_qua_tai[MOTOR_6] = 1;
+				}
+				motor6_stop();
+				if(check_done_step()){
+					beginChangeStep = true;
+					restartCurrentDistant();
+					if(digitalRead(PIN_SET_UP_OPEN_CLOSE)){
+						mode_run_open ++;
+					}
+					else{
+						mode_run_close ++;
+					}
+				}
+			}else{
+				pulse_current_check_motor_qua_tai[MOTOR_6] = current_distant_motor.current_motor_6;
+			}
+		}
+	}
+}
+
+
 void setup(){
     // put your setup code here, to run once:
     WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
-	rtc_wdt_protect_off();			//for turn off WDT
-	rtc_wdt_disable();
+	// rtc_wdt_protect_off();			//for turn off WDT
+	// rtc_wdt_disable();
 
 	rtc_wdt_set_length_of_reset_signal(RTC_WDT_SYS_RESET_SIG, RTC_WDT_LENGTH_3_2us);
 	rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_SYSTEM);
@@ -1392,33 +1657,37 @@ void loop(){
 	}
 
 
-	if(send_data_to_app_iar_err[MOTOR_1]){
-		send_data_to_app_iar_err[MOTOR_1] = false;
-		sendDatatoAppIarMotor1();
+	check_motor_stop_qua_tai();
+
+	if(change_stop_function_from_iar_to_loop[MOTOR_1]){
+		change_stop_function_from_iar_to_loop[MOTOR_1] = false;
+		motor1_stop();
 	}
-	if(send_data_to_app_iar_err[MOTOR_2]){
-		send_data_to_app_iar_err[MOTOR_2] = false;
-		sendDatatoAppIarMotor2();
+	if(change_stop_function_from_iar_to_loop[MOTOR_2]){
+		change_stop_function_from_iar_to_loop[MOTOR_2] = false;
+		motor2_stop();
 	}
-	if(send_data_to_app_iar_err[MOTOR_3]){
-		send_data_to_app_iar_err[MOTOR_3] = false;
-		sendDatatoAppIarMotor3();
+	if(change_stop_function_from_iar_to_loop[MOTOR_3]){
+		change_stop_function_from_iar_to_loop[MOTOR_3] = false;
+		motor3_stop();
 	}
-	if(send_data_to_app_iar_err[MOTOR_4]){
-		send_data_to_app_iar_err[MOTOR_4] = false;
-		sendDatatoAppIarMotor4();
+	if(change_stop_function_from_iar_to_loop[MOTOR_4]){
+		change_stop_function_from_iar_to_loop[MOTOR_4] = false;
+		motor4_stop();
 	}
-	if(send_data_to_app_iar_err[MOTOR_5]){
-		send_data_to_app_iar_err[MOTOR_5] = false;
-		sendDatatoAppIarMotor5();
+	if(change_stop_function_from_iar_to_loop[MOTOR_5]){
+		change_stop_function_from_iar_to_loop[MOTOR_5] = false;
+		motor5_stop();
 	}
-	if(send_data_to_app_iar_err[MOTOR_6]){
-		send_data_to_app_iar_err[MOTOR_6] = false;
-		sendDatatoAppIarMotor6();
+	if(change_stop_function_from_iar_to_loop[MOTOR_6]){
+		change_stop_function_from_iar_to_loop[MOTOR_6] = false;
+		motor6_stop();
 	}
 
+
 	rtc_wdt_feed();
-	vTaskDelay(pdMS_TO_TICKS(100));
+	// vTaskDelay(pdMS_TO_TICKS(100));
 	delay(100);
+	yield();
 
 }

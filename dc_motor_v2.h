@@ -48,6 +48,9 @@ uint8_t MODE_CLOSE_STEP_1[MAX_NUMBER_MOTOR] = {RUN_OPEN, RUN_OPEN, RUN_STOP, RUN
 uint8_t MODE_CLOSE_STEP_2[MAX_NUMBER_MOTOR] = {RUN_STOP, RUN_STOP, RUN_STOP, RUN_CLOSE, RUN_CLOSE, RUN_CLOSE};
 uint8_t MODE_CLOSE_STEP_3[MAX_NUMBER_MOTOR] = {RUN_CLOSE, RUN_CLOSE, RUN_CLOSE, RUN_STOP, RUN_STOP, RUN_STOP};
 
+uint32_t time_check_motor_qua_tai[MAX_NUMBER_MOTOR];
+uint32_t pulse_current_check_motor_qua_tai[MAX_NUMBER_MOTOR] = {1,1,1,1,1,1};
+
 bool isModeConfig = false;
 
 //variable for begin change step.
@@ -76,6 +79,7 @@ void setPinMode();
 void restartCurrentDistant();
 void readDataEeprom();
 void checkButtonSwitchSetup();
+void check_motor_stop_qua_tai();
 void callbackBluetooth(esp_spp_cb_event_t event, esp_spp_cb_param_t *param);
 
 #endif
