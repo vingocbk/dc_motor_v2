@@ -51,7 +51,7 @@ uint8_t MODE_CLOSE_STEP_3[MAX_NUMBER_MOTOR] = {RUN_CLOSE, RUN_CLOSE, RUN_CLOSE, 
 uint32_t time_check_motor_qua_tai[MAX_NUMBER_MOTOR];
 uint32_t pulse_current_check_motor_qua_tai[MAX_NUMBER_MOTOR] = {1,1,1,1,1,1};
 
-bool isModeConfig = false;
+bool isModeConfig = true;
 
 //variable for begin change step.
 bool beginChangeStep = true;
@@ -65,7 +65,7 @@ bool mode_run_test_distant = false;
 
 int mode_run_open;
 int mode_run_close;
-bool fisrt_switch_mode_setup = false;
+bool fisrt_switch_mode_setup = true;
 
 
 void IRAM_ATTR dirhallSensor1();
