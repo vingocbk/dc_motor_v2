@@ -385,19 +385,19 @@ void IRAM_ATTR dirhallSensor6(){
 }
 
 void setPinMode(){
-	pinMode(L1_UP, OUTPUT);
-	pinMode(L1_DOWN, OUTPUT);
-	pinMode(L2_UP, OUTPUT);
-	pinMode(L2_DOWN, OUTPUT);
-	pinMode(L3_UP, OUTPUT);
-	pinMode(L3_DOWN, OUTPUT);
-	pinMode(L4_UP, OUTPUT);
-	pinMode(L4_DOWN, OUTPUT);
-	pinMode(L5_UP, OUTPUT);
-	pinMode(L5_DOWN, OUTPUT);
-	pinMode(L6_UP, OUTPUT);
-	pinMode(L6_DOWN, OUTPUT);
-	
+	// pinMode(L1_UP, OUTPUT);
+	// pinMode(L1_DOWN, OUTPUT);
+	// pinMode(L2_UP, OUTPUT);
+	// pinMode(L2_DOWN, OUTPUT);
+	// pinMode(L3_UP, OUTPUT);
+	// pinMode(L3_DOWN, OUTPUT);
+	// pinMode(L4_UP, OUTPUT);
+	// pinMode(L4_DOWN, OUTPUT);
+	// pinMode(L5_UP, OUTPUT);
+	// pinMode(L5_DOWN, OUTPUT);
+	// pinMode(L6_UP, OUTPUT);
+	// pinMode(L6_DOWN, OUTPUT);
+	init_motor();
 
 	pinMode(hallSensor1a, INPUT);
 	pinMode(hallSensor2a, INPUT);
@@ -469,6 +469,63 @@ void readDataEeprom(){
     value_distant_motor.distant_motor_6 = distantMotor6.toInt();
     ECHO("Read Distant Motor 6: ");
     ECHOLN(value_distant_motor.distant_motor_6);
+
+	percent_low_speed[MOTOR_1] = EEPROM.read(EEPROOM_PERCENT_SLOW_MOTOR_1);
+	ECHO("percent_low_speed 1: ");
+    ECHOLN(percent_low_speed[MOTOR_1]);
+	percent_low_speed[MOTOR_2] = EEPROM.read(EEPROOM_PERCENT_SLOW_MOTOR_2);
+	ECHO("percent_low_speed 2: ");
+    ECHOLN(percent_low_speed[MOTOR_2]);
+	percent_low_speed[MOTOR_3] = EEPROM.read(EEPROOM_PERCENT_SLOW_MOTOR_3);
+	ECHO("percent_low_speed 3: ");
+    ECHOLN(percent_low_speed[MOTOR_3]);
+	percent_low_speed[MOTOR_4] = EEPROM.read(EEPROOM_PERCENT_SLOW_MOTOR_4);
+	ECHO("percent_low_speed 4: ");
+    ECHOLN(percent_low_speed[MOTOR_4]);
+	percent_low_speed[MOTOR_5] = EEPROM.read(EEPROOM_PERCENT_SLOW_MOTOR_5);
+	ECHO("percent_low_speed 5: ");
+    ECHOLN(percent_low_speed[MOTOR_5]);
+	percent_low_speed[MOTOR_6] = EEPROM.read(EEPROOM_PERCENT_SLOW_MOTOR_6);
+	ECHO("percent_low_speed 6: ");
+    ECHOLN(percent_low_speed[MOTOR_6]);
+
+	pwm_slow_speed[MOTOR_1] = EEPROM.read(EEPROOM_SPEED_MOTOR_1);
+	ECHO("pwm_slow_speed 1: ");
+    ECHOLN(pwm_slow_speed[MOTOR_1]);
+	pwm_slow_speed[MOTOR_2] = EEPROM.read(EEPROOM_SPEED_MOTOR_2);
+	ECHO("pwm_slow_speed 2: ");
+    ECHOLN(pwm_slow_speed[MOTOR_2]);
+	pwm_slow_speed[MOTOR_3] = EEPROM.read(EEPROOM_SPEED_MOTOR_3);
+	ECHO("pwm_slow_speed 3: ");
+    ECHOLN(pwm_slow_speed[MOTOR_3]);
+	pwm_slow_speed[MOTOR_4] = EEPROM.read(EEPROOM_SPEED_MOTOR_4);
+	ECHO("pwm_slow_speed 4: ");
+    ECHOLN(pwm_slow_speed[MOTOR_4]);
+	pwm_slow_speed[MOTOR_5] = EEPROM.read(EEPROOM_SPEED_MOTOR_5);
+	ECHO("pwm_slow_speed 5: ");
+    ECHOLN(pwm_slow_speed[MOTOR_5]);
+	pwm_slow_speed[MOTOR_6] = EEPROM.read(EEPROOM_SPEED_MOTOR_6);
+	ECHO("pwm_slow_speed 6: ");
+    ECHOLN(pwm_slow_speed[MOTOR_6]);
+
+	time_return_stop[MOTOR_1] = EEPROM.read(EEPROOM_TIME_RETURN_MOTOR_1);
+	ECHO("time_return_stop 1: ");
+    ECHOLN(time_return_stop[MOTOR_1]);
+	time_return_stop[MOTOR_2] = EEPROM.read(EEPROOM_TIME_RETURN_MOTOR_2);
+	ECHO("time_return_stop 2: ");
+    ECHOLN(time_return_stop[MOTOR_2]);
+	time_return_stop[MOTOR_3] = EEPROM.read(EEPROOM_TIME_RETURN_MOTOR_3);
+	ECHO("time_return_stop 3: ");
+    ECHOLN(time_return_stop[MOTOR_3]);
+	time_return_stop[MOTOR_4] = EEPROM.read(EEPROOM_TIME_RETURN_MOTOR_4);
+	ECHO("time_return_stop 4: ");
+    ECHOLN(time_return_stop[MOTOR_4]);
+	time_return_stop[MOTOR_5] = EEPROM.read(EEPROOM_TIME_RETURN_MOTOR_5);
+	ECHO("time_return_stop 5: ");
+    ECHOLN(time_return_stop[MOTOR_5]);
+	time_return_stop[MOTOR_6] = EEPROM.read(EEPROOM_TIME_RETURN_MOTOR_6);
+	ECHO("time_return_stop 6: ");
+    ECHOLN(time_return_stop[MOTOR_6]);
 }
 
 
@@ -492,7 +549,7 @@ void callbackBluetooth(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
 				if (rootData.success()){
 					String type = rootData["type"];
 					String name = rootData["name"];
-					if(type == "get_distant"){
+					if(type == "get_status"){
 						sendDistanttoApp();
 					}
 					else if(type == "save_distant"){
@@ -815,6 +872,97 @@ void callbackBluetooth(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
 							}
 						}
 					}
+					else if(type == "config"){
+						String slow = rootData["slow"];
+						String speed = rootData["speed"];
+						String returnn = rootData["return"];
+						if(name == "0"){	//MOTOR 1
+							if(slow != ""){
+								percent_low_speed[MOTOR_1] = slow.toInt();
+								EEPROM.write(EEPROOM_PERCENT_SLOW_MOTOR_1, percent_low_speed[MOTOR_1]);
+							}
+							if(speed != ""){
+								pwm_slow_speed[MOTOR_1] = speed.toInt();
+								EEPROM.write(EEPROOM_SPEED_MOTOR_1, pwm_slow_speed[MOTOR_1]);
+							}
+							if(returnn != ""){
+								time_return_stop[MOTOR_1] = returnn.toInt();
+								EEPROM.write(EEPROOM_TIME_RETURN_MOTOR_1, time_return_stop[MOTOR_1]);
+							}
+						}
+						else if(name == "1"){	//MOTOR 2
+							if(slow != ""){
+								percent_low_speed[MOTOR_2] = slow.toInt();
+								EEPROM.write(EEPROOM_PERCENT_SLOW_MOTOR_2, percent_low_speed[MOTOR_2]);
+							}
+							if(speed != ""){
+								pwm_slow_speed[MOTOR_2] = speed.toInt();
+								EEPROM.write(EEPROOM_SPEED_MOTOR_2, pwm_slow_speed[MOTOR_2]);
+							}
+							if(returnn != ""){
+								time_return_stop[MOTOR_2] = returnn.toInt();
+								EEPROM.write(EEPROOM_TIME_RETURN_MOTOR_2, time_return_stop[MOTOR_2]);
+							}
+						}
+						else if(name == "2"){	//MOTOR 3
+							if(slow != ""){
+								percent_low_speed[MOTOR_3] = slow.toInt();
+								EEPROM.write(EEPROOM_PERCENT_SLOW_MOTOR_3, percent_low_speed[MOTOR_3]);
+							}
+							if(speed != ""){
+								pwm_slow_speed[MOTOR_3] = speed.toInt();
+								EEPROM.write(EEPROOM_SPEED_MOTOR_3, pwm_slow_speed[MOTOR_3]);
+							}
+							if(returnn != ""){
+								time_return_stop[MOTOR_3] = returnn.toInt();
+								EEPROM.write(EEPROOM_TIME_RETURN_MOTOR_3, time_return_stop[MOTOR_3]);
+							}
+						}
+						else if(name == "3"){	//MOTOR 4
+							if(slow != ""){
+								percent_low_speed[MOTOR_4] = slow.toInt();
+								EEPROM.write(EEPROOM_PERCENT_SLOW_MOTOR_4, percent_low_speed[MOTOR_4]);
+							}
+							if(speed != ""){
+								pwm_slow_speed[MOTOR_4] = speed.toInt();
+								EEPROM.write(EEPROOM_SPEED_MOTOR_4, pwm_slow_speed[MOTOR_4]);
+							}
+							if(returnn != ""){
+								time_return_stop[MOTOR_4] = returnn.toInt();
+								EEPROM.write(EEPROOM_TIME_RETURN_MOTOR_4, time_return_stop[MOTOR_4]);
+							}
+						}
+						else if(name == "4"){	//MOTOR 5
+							if(slow != ""){
+								percent_low_speed[MOTOR_5] = slow.toInt();
+								EEPROM.write(EEPROOM_PERCENT_SLOW_MOTOR_5, percent_low_speed[MOTOR_5]);
+							}
+							if(speed != ""){
+								pwm_slow_speed[MOTOR_5] = speed.toInt();
+								EEPROM.write(EEPROOM_SPEED_MOTOR_5, pwm_slow_speed[MOTOR_5]);
+							}
+							if(returnn != ""){
+								time_return_stop[MOTOR_5] = returnn.toInt();
+								EEPROM.write(EEPROOM_TIME_RETURN_MOTOR_5, time_return_stop[MOTOR_5]);
+							}
+						}
+						else if(name == "5"){	//MOTOR 6
+							if(slow != ""){
+								percent_low_speed[MOTOR_6] = slow.toInt();
+								EEPROM.write(EEPROOM_PERCENT_SLOW_MOTOR_6, percent_low_speed[MOTOR_6]);
+							}
+							if(speed != ""){
+								pwm_slow_speed[MOTOR_6] = speed.toInt();
+								EEPROM.write(EEPROOM_SPEED_MOTOR_6, pwm_slow_speed[MOTOR_6]);
+							}
+							if(returnn != ""){
+								time_return_stop[MOTOR_6] = returnn.toInt();
+								EEPROM.write(EEPROOM_TIME_RETURN_MOTOR_6, time_return_stop[MOTOR_6]);
+							}
+						}
+						EEPROM.commit();
+						sendDistanttoApp();
+					}
 				}
 			}
         }
@@ -861,12 +1009,14 @@ void check_motor_stop_qua_tai(){
 			time_check_motor_qua_tai[MOTOR_1] = millis();
 			if(pulse_current_check_motor_qua_tai[MOTOR_1] == current_distant_motor.current_motor_1){
 				//QUA TAI
-				ECHOLN("QUA TAI!!!");
+				ECHOLN("QUA TAI MOTOR 1!!!");
 				if(!save_distant_from_setup[MOTOR_1]){
 					current_distant_motor.current_motor_1 = 0;
 					pulse_current_check_motor_qua_tai[MOTOR_1] = 1;
 				}
+				trang_thai_truoc_khi_dao_chieu[MOTOR_1] = status_current_motor[MOTOR_1];
 				motor1_stop();
+				
 				if(check_done_step()){
 					beginChangeStep = true;
 					restartCurrentDistant();
@@ -877,6 +1027,7 @@ void check_motor_stop_qua_tai(){
 						mode_run_close ++;
 					}
 				}
+				checkReturnMotor1.start();
 			}else{
 				pulse_current_check_motor_qua_tai[MOTOR_1] = current_distant_motor.current_motor_1;
 			}
@@ -887,11 +1038,12 @@ void check_motor_stop_qua_tai(){
 			time_check_motor_qua_tai[MOTOR_2] = millis();
 			if(pulse_current_check_motor_qua_tai[MOTOR_2] == current_distant_motor.current_motor_2){
 				//QUA TAI
-				ECHOLN("QUA TAI!!!");
+				ECHOLN("QUA TAI MOTOR 2!!!");
 				if(!save_distant_from_setup[MOTOR_2]){
 					current_distant_motor.current_motor_2 = 0;
 					pulse_current_check_motor_qua_tai[MOTOR_2] = 1;
 				}
+				trang_thai_truoc_khi_dao_chieu[MOTOR_2] = status_current_motor[MOTOR_2];
 				motor2_stop();
 				if(check_done_step()){
 					beginChangeStep = true;
@@ -903,6 +1055,7 @@ void check_motor_stop_qua_tai(){
 						mode_run_close ++;
 					}
 				}
+				checkReturnMotor2.start();
 			}else{
 				pulse_current_check_motor_qua_tai[MOTOR_2] = current_distant_motor.current_motor_2;
 			}
@@ -913,11 +1066,12 @@ void check_motor_stop_qua_tai(){
 			time_check_motor_qua_tai[MOTOR_3] = millis();
 			if(pulse_current_check_motor_qua_tai[MOTOR_3] == current_distant_motor.current_motor_3){
 				//QUA TAI
-				ECHOLN("QUA TAI!!!");
+				ECHOLN("QUA TAI MOTOR 3!!!");
 				if(!save_distant_from_setup[MOTOR_3]){
 					current_distant_motor.current_motor_3 = 0;
 					pulse_current_check_motor_qua_tai[MOTOR_3] = 1;
 				}
+				trang_thai_truoc_khi_dao_chieu[MOTOR_3] = status_current_motor[MOTOR_3];
 				motor3_stop();
 				if(check_done_step()){
 					beginChangeStep = true;
@@ -929,6 +1083,7 @@ void check_motor_stop_qua_tai(){
 						mode_run_close ++;
 					}
 				}
+				checkReturnMotor3.start();
 			}else{
 				pulse_current_check_motor_qua_tai[MOTOR_3] = current_distant_motor.current_motor_3;
 			}
@@ -939,11 +1094,12 @@ void check_motor_stop_qua_tai(){
 			time_check_motor_qua_tai[MOTOR_4] = millis();
 			if(pulse_current_check_motor_qua_tai[MOTOR_4] == current_distant_motor.current_motor_4){
 				//QUA TAI
-				ECHOLN("QUA TAI!!!");
+				ECHOLN("QUA TAI MOTOR 4!!!");
 				if(!save_distant_from_setup[MOTOR_4]){
 					current_distant_motor.current_motor_4 = 0;
 					pulse_current_check_motor_qua_tai[MOTOR_4] = 1;
 				}
+				trang_thai_truoc_khi_dao_chieu[MOTOR_4] = status_current_motor[MOTOR_4];
 				motor4_stop();
 				if(check_done_step()){
 					beginChangeStep = true;
@@ -955,6 +1111,7 @@ void check_motor_stop_qua_tai(){
 						mode_run_close ++;
 					}
 				}
+				checkReturnMotor4.start();
 			}else{
 				pulse_current_check_motor_qua_tai[MOTOR_4] = current_distant_motor.current_motor_4;
 			}
@@ -965,11 +1122,12 @@ void check_motor_stop_qua_tai(){
 			time_check_motor_qua_tai[MOTOR_5] = millis();
 			if(pulse_current_check_motor_qua_tai[MOTOR_5] == current_distant_motor.current_motor_5){
 				//QUA TAI
-				ECHOLN("QUA TAI!!!");
+				ECHOLN("QUA TAI MOTOR 5!!!");
 				if(!save_distant_from_setup[MOTOR_5]){
 					current_distant_motor.current_motor_5 = 0;
 					pulse_current_check_motor_qua_tai[MOTOR_5] = 1;
 				}
+				trang_thai_truoc_khi_dao_chieu[MOTOR_5] = status_current_motor[MOTOR_5];
 				motor5_stop();
 				if(check_done_step()){
 					beginChangeStep = true;
@@ -981,6 +1139,7 @@ void check_motor_stop_qua_tai(){
 						mode_run_close ++;
 					}
 				}
+				checkReturnMotor5.start();
 			}else{
 				pulse_current_check_motor_qua_tai[MOTOR_5] = current_distant_motor.current_motor_5;
 			}
@@ -991,11 +1150,12 @@ void check_motor_stop_qua_tai(){
 			time_check_motor_qua_tai[MOTOR_6] = millis();
 			if(pulse_current_check_motor_qua_tai[MOTOR_6] == current_distant_motor.current_motor_6){
 				//QUA TAI
-				ECHOLN("QUA TAI!!!");
+				ECHOLN("QUA TAI MOTOR 6!!!");
 				if(!save_distant_from_setup[MOTOR_6]){
 					current_distant_motor.current_motor_6 = 0;
 					pulse_current_check_motor_qua_tai[MOTOR_6] = 1;
 				}
+				trang_thai_truoc_khi_dao_chieu[MOTOR_6] = status_current_motor[MOTOR_6];
 				motor6_stop();
 				if(check_done_step()){
 					beginChangeStep = true;
@@ -1007,6 +1167,7 @@ void check_motor_stop_qua_tai(){
 						mode_run_close ++;
 					}
 				}
+				checkReturnMotor6.start();
 			}else{
 				pulse_current_check_motor_qua_tai[MOTOR_6] = current_distant_motor.current_motor_6;
 			}
@@ -1014,6 +1175,174 @@ void check_motor_stop_qua_tai(){
 	}
 }
 
+void check_motor_slow_speed(){
+	if(status_motor_is_running[MOTOR_1] && flag_check_slow_speed[MOTOR_1]){
+		if(!isModeConfig || mode_run_test_distant){
+			if(current_distant_motor.current_motor_1 >= (percent_low_speed[MOTOR_1]*value_distant_motor.distant_motor_1)/100){
+				if(status_current_motor[MOTOR_1] == MOTOR_OPEN){
+					motor1_open_slow();
+				}else{
+					motor1_close_slow();
+				}
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_2] && flag_check_slow_speed[MOTOR_2]){
+		if(!isModeConfig || mode_run_test_distant){
+			if(current_distant_motor.current_motor_2 >= (percent_low_speed[MOTOR_2]*value_distant_motor.distant_motor_2)/100){
+				if(status_current_motor[MOTOR_2] == MOTOR_OPEN){
+					motor2_open_slow();
+				}else{
+					motor2_close_slow();
+				}
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_3] && flag_check_slow_speed[MOTOR_3]){
+		if(!isModeConfig || mode_run_test_distant){
+			if(current_distant_motor.current_motor_3 >= (percent_low_speed[MOTOR_3]*value_distant_motor.distant_motor_3)/100){
+				if(status_current_motor[MOTOR_3] == MOTOR_OPEN){
+					motor3_open_slow();
+				}else{
+					motor3_close_slow();
+				}
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_4] && flag_check_slow_speed[MOTOR_4]){
+		if(!isModeConfig || mode_run_test_distant){
+			if(current_distant_motor.current_motor_4 >= (percent_low_speed[MOTOR_4]*value_distant_motor.distant_motor_4)/100){
+				if(status_current_motor[MOTOR_4] == MOTOR_OPEN){
+					motor4_open_slow();
+				}else{
+					motor4_close_slow();
+				}
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_5] && flag_check_slow_speed[MOTOR_5]){
+		if(!isModeConfig || mode_run_test_distant){
+			if(current_distant_motor.current_motor_5 >= (percent_low_speed[MOTOR_5]*value_distant_motor.distant_motor_5)/100){
+				if(status_current_motor[MOTOR_5] == MOTOR_OPEN){
+					motor5_open_slow();
+				}else{
+					motor5_close_slow();
+				}
+			}
+		}
+	}
+	if(status_motor_is_running[MOTOR_6] && flag_check_slow_speed[MOTOR_6]){
+		if(!isModeConfig || mode_run_test_distant){
+			if(current_distant_motor.current_motor_6 >= (percent_low_speed[MOTOR_6]*value_distant_motor.distant_motor_6)/100){
+				if(status_current_motor[MOTOR_6] == MOTOR_OPEN){
+					motor6_open_slow();
+				}else{
+					motor6_close_slow();
+				}
+			}
+		}
+	}
+}
+
+void ticker_update(){
+    checkReturnMotor1.update();
+	checkReturnMotor2.update();
+	checkReturnMotor3.update();
+	checkReturnMotor4.update();
+	checkReturnMotor5.update();
+	checkReturnMotor6.update();
+}
+
+void check_return_motor_1(){
+	count_check_return_motor[MOTOR_1]++;
+	if(trang_thai_truoc_khi_dao_chieu[MOTOR_1] == MOTOR_CLOSE){
+		motor1_open();
+	}
+	else if(trang_thai_truoc_khi_dao_chieu[MOTOR_1] == MOTOR_OPEN){
+		motor1_close();
+	}
+	trang_thai_truoc_khi_dao_chieu[MOTOR_1] = MOTOR_STOP;
+	if(count_check_return_motor[MOTOR_1] == time_return_stop[MOTOR_1]){
+		count_check_return_motor[MOTOR_1] = 0;
+		motor1_stop();
+		checkReturnMotor1.stop();
+	}
+}
+void check_return_motor_2(){
+	count_check_return_motor[MOTOR_2]++;
+	if(trang_thai_truoc_khi_dao_chieu[MOTOR_2] == MOTOR_CLOSE){
+		motor2_open();
+	}
+	else if(trang_thai_truoc_khi_dao_chieu[MOTOR_2] == MOTOR_OPEN){
+		motor2_close();
+	}
+	trang_thai_truoc_khi_dao_chieu[MOTOR_2] = MOTOR_STOP;
+	if(count_check_return_motor[MOTOR_2] == time_return_stop[MOTOR_2]){
+		count_check_return_motor[MOTOR_2] = 0;
+		motor2_stop();
+		checkReturnMotor2.stop();
+	}
+}
+void check_return_motor_3(){
+	count_check_return_motor[MOTOR_3]++;
+	if(trang_thai_truoc_khi_dao_chieu[MOTOR_3] == MOTOR_CLOSE){
+		motor3_open();
+	}
+	else if(trang_thai_truoc_khi_dao_chieu[MOTOR_3] == MOTOR_OPEN){
+		motor3_close();
+	}
+	trang_thai_truoc_khi_dao_chieu[MOTOR_3] = MOTOR_STOP;
+	if(count_check_return_motor[MOTOR_3] == time_return_stop[MOTOR_3]){
+		count_check_return_motor[MOTOR_3] = 0;
+		motor3_stop();
+		checkReturnMotor3.stop();
+	}
+}
+void check_return_motor_4(){
+	count_check_return_motor[MOTOR_4]++;
+	if(trang_thai_truoc_khi_dao_chieu[MOTOR_4] == MOTOR_CLOSE){
+		motor4_open();
+	}
+	else if(trang_thai_truoc_khi_dao_chieu[MOTOR_4] == MOTOR_OPEN){
+		motor4_close();
+	}
+	trang_thai_truoc_khi_dao_chieu[MOTOR_4] = MOTOR_STOP;
+	if(count_check_return_motor[MOTOR_4] == time_return_stop[MOTOR_4]){
+		count_check_return_motor[MOTOR_4] = 0;
+		motor4_stop();
+		checkReturnMotor4.stop();
+	}
+}
+void check_return_motor_5(){
+	count_check_return_motor[MOTOR_5]++;
+	if(trang_thai_truoc_khi_dao_chieu[MOTOR_5] == MOTOR_CLOSE){
+		motor5_open();
+	}
+	else if(trang_thai_truoc_khi_dao_chieu[MOTOR_5] == MOTOR_OPEN){
+		motor5_close();
+	}
+	trang_thai_truoc_khi_dao_chieu[MOTOR_5] = MOTOR_STOP;
+	if(count_check_return_motor[MOTOR_5] == time_return_stop[MOTOR_5]){
+		count_check_return_motor[MOTOR_5] = 0;
+		motor5_stop();
+		checkReturnMotor5.stop();
+	}
+}
+void check_return_motor_6(){
+	count_check_return_motor[MOTOR_6]++;
+	if(trang_thai_truoc_khi_dao_chieu[MOTOR_6] == MOTOR_CLOSE){
+		motor6_open();
+	}
+	else if(trang_thai_truoc_khi_dao_chieu[MOTOR_6] == MOTOR_OPEN){
+		motor6_close();
+	}
+	trang_thai_truoc_khi_dao_chieu[MOTOR_6] = MOTOR_STOP;
+	if(count_check_return_motor[MOTOR_6] == time_return_stop[MOTOR_6]){
+		count_check_return_motor[MOTOR_6] = 0;
+		motor6_stop();
+		checkReturnMotor6.stop();
+	}
+}
 
 void setup(){
     // put your setup code here, to run once:
@@ -1074,7 +1403,7 @@ void loop(){
 						motor1_open();
 						break;
 					case RUN_STOP:
-						motor1_stop();
+						// motor1_stop();
 						break;
 					case RUN_CLOSE:
 						motor1_close();
@@ -1088,7 +1417,7 @@ void loop(){
 						motor2_open();
 						break;
 					case RUN_STOP:
-						motor2_stop();
+						// motor2_stop();
 						break;
 					case RUN_CLOSE:
 						motor2_close();
@@ -1102,7 +1431,7 @@ void loop(){
 						motor3_open();
 						break;
 					case RUN_STOP:
-						motor3_stop();
+						// motor3_stop();
 						break;
 					case RUN_CLOSE:
 						motor3_close();
@@ -1116,7 +1445,7 @@ void loop(){
 						motor4_open();
 						break;
 					case RUN_STOP:
-						motor4_stop();
+						// motor4_stop();
 						break;
 					case RUN_CLOSE:
 						motor4_close();
@@ -1130,7 +1459,7 @@ void loop(){
 						motor5_open();
 						break;
 					case RUN_STOP:
-						motor5_stop();
+						// motor5_stop();
 						break;
 					case RUN_CLOSE:
 						motor5_close();
@@ -1144,7 +1473,7 @@ void loop(){
 						motor6_open();
 						break;
 					case RUN_STOP:
-						motor6_stop();
+						// motor6_stop();
 						break;
 					case RUN_CLOSE:
 						motor6_close();
@@ -1165,7 +1494,7 @@ void loop(){
 						motor1_open();
 						break;
 					case RUN_STOP:
-						motor1_stop();
+						// motor1_stop();
 						break;
 					case RUN_CLOSE:
 						motor1_close();
@@ -1179,7 +1508,7 @@ void loop(){
 						motor2_open();
 						break;
 					case RUN_STOP:
-						motor2_stop();
+						// motor2_stop();
 						break;
 					case RUN_CLOSE:
 						motor2_close();
@@ -1193,7 +1522,7 @@ void loop(){
 						motor3_open();
 						break;
 					case RUN_STOP:
-						motor3_stop();
+						// motor3_stop();
 						break;
 					case RUN_CLOSE:
 						motor3_close();
@@ -1207,7 +1536,7 @@ void loop(){
 						motor4_open();
 						break;
 					case RUN_STOP:
-						motor4_stop();
+						// motor4_stop();
 						break;
 					case RUN_CLOSE:
 						motor4_close();
@@ -1221,7 +1550,7 @@ void loop(){
 						motor5_open();
 						break;
 					case RUN_STOP:
-						motor5_stop();
+						// motor5_stop();
 						break;
 					case RUN_CLOSE:
 						motor5_close();
@@ -1235,7 +1564,7 @@ void loop(){
 						motor6_open();
 						break;
 					case RUN_STOP:
-						motor6_stop();
+						// motor6_stop();
 						break;
 					case RUN_CLOSE:
 						motor6_close();
@@ -1256,7 +1585,7 @@ void loop(){
 						motor1_open();
 						break;
 					case RUN_STOP:
-						motor1_stop();
+						// motor1_stop();
 						break;
 					case RUN_CLOSE:
 						motor1_close();
@@ -1270,7 +1599,7 @@ void loop(){
 						motor2_open();
 						break;
 					case RUN_STOP:
-						motor2_stop();
+						// motor2_stop();
 						break;
 					case RUN_CLOSE:
 						motor2_close();
@@ -1284,7 +1613,7 @@ void loop(){
 						motor3_open();
 						break;
 					case RUN_STOP:
-						motor3_stop();
+						// motor3_stop();
 						break;
 					case RUN_CLOSE:
 						motor3_close();
@@ -1298,7 +1627,7 @@ void loop(){
 						motor4_open();
 						break;
 					case RUN_STOP:
-						motor4_stop();
+						// motor4_stop();
 						break;
 					case RUN_CLOSE:
 						motor4_close();
@@ -1312,7 +1641,7 @@ void loop(){
 						motor5_open();
 						break;
 					case RUN_STOP:
-						motor5_stop();
+						// motor5_stop();
 						break;
 					case RUN_CLOSE:
 						motor5_close();
@@ -1326,7 +1655,7 @@ void loop(){
 						motor6_open();
 						break;
 					case RUN_STOP:
-						motor6_stop();
+						// motor6_stop();
 						break;
 					case RUN_CLOSE:
 						motor6_close();
@@ -1360,7 +1689,7 @@ void loop(){
 						motor1_open();
 						break;
 					case RUN_STOP:
-						motor1_stop();
+						// motor1_stop();
 						break;
 					case RUN_CLOSE:
 						motor1_close();
@@ -1374,7 +1703,7 @@ void loop(){
 						motor2_open();
 						break;
 					case RUN_STOP:
-						motor2_stop();
+						// motor2_stop();
 						break;
 					case RUN_CLOSE:
 						motor2_close();
@@ -1388,7 +1717,7 @@ void loop(){
 						motor3_open();
 						break;
 					case RUN_STOP:
-						motor3_stop();
+						// motor3_stop();
 						break;
 					case RUN_CLOSE:
 						motor3_close();
@@ -1402,7 +1731,7 @@ void loop(){
 						motor4_open();
 						break;
 					case RUN_STOP:
-						motor4_stop();
+						// motor4_stop();
 						break;
 					case RUN_CLOSE:
 						motor4_close();
@@ -1416,7 +1745,7 @@ void loop(){
 						motor5_open();
 						break;
 					case RUN_STOP:
-						motor5_stop();
+						// motor5_stop();
 						break;
 					case RUN_CLOSE:
 						motor5_close();
@@ -1430,7 +1759,7 @@ void loop(){
 						motor6_open();
 						break;
 					case RUN_STOP:
-						motor6_stop();
+						// motor6_stop();
 						break;
 					case RUN_CLOSE:
 						motor6_close();
@@ -1451,7 +1780,7 @@ void loop(){
 						motor1_open();
 						break;
 					case RUN_STOP:
-						motor1_stop();
+						// motor1_stop();
 						break;
 					case RUN_CLOSE:
 						motor1_close();
@@ -1465,7 +1794,7 @@ void loop(){
 						motor2_open();
 						break;
 					case RUN_STOP:
-						motor2_stop();
+						// motor2_stop();
 						break;
 					case RUN_CLOSE:
 						motor2_close();
@@ -1479,7 +1808,7 @@ void loop(){
 						motor3_open();
 						break;
 					case RUN_STOP:
-						motor3_stop();
+						// motor3_stop();
 						break;
 					case RUN_CLOSE:
 						motor3_close();
@@ -1493,7 +1822,7 @@ void loop(){
 						motor4_open();
 						break;
 					case RUN_STOP:
-						motor4_stop();
+						// motor4_stop();
 						break;
 					case RUN_CLOSE:
 						motor4_close();
@@ -1507,7 +1836,7 @@ void loop(){
 						motor5_open();
 						break;
 					case RUN_STOP:
-						motor5_stop();
+						// motor5_stop();
 						break;
 					case RUN_CLOSE:
 						motor5_close();
@@ -1521,7 +1850,7 @@ void loop(){
 						motor6_open();
 						break;
 					case RUN_STOP:
-						motor6_stop();
+						// motor6_stop();
 						break;
 					case RUN_CLOSE:
 						motor6_close();
@@ -1542,7 +1871,7 @@ void loop(){
 						motor1_open();
 						break;
 					case RUN_STOP:
-						motor1_stop();
+						// motor1_stop();
 						break;
 					case RUN_CLOSE:
 						motor1_close();
@@ -1556,7 +1885,7 @@ void loop(){
 						motor2_open();
 						break;
 					case RUN_STOP:
-						motor2_stop();
+						// motor2_stop();
 						break;
 					case RUN_CLOSE:
 						motor2_close();
@@ -1570,7 +1899,7 @@ void loop(){
 						motor3_open();
 						break;
 					case RUN_STOP:
-						motor3_stop();
+						// motor3_stop();
 						break;
 					case RUN_CLOSE:
 						motor3_close();
@@ -1584,7 +1913,7 @@ void loop(){
 						motor4_open();
 						break;
 					case RUN_STOP:
-						motor4_stop();
+						// motor4_stop();
 						break;
 					case RUN_CLOSE:
 						motor4_close();
@@ -1598,7 +1927,7 @@ void loop(){
 						motor5_open();
 						break;
 					case RUN_STOP:
-						motor5_stop();
+						// motor5_stop();
 						break;
 					case RUN_CLOSE:
 						motor5_close();
@@ -1612,7 +1941,7 @@ void loop(){
 						motor6_open();
 						break;
 					case RUN_STOP:
-						motor6_stop();
+						// motor6_stop();
 						break;
 					case RUN_CLOSE:
 						motor6_close();
@@ -1638,18 +1967,57 @@ void loop(){
 
 	if(flag_send_data_to_app){
 		flag_send_data_to_app = false;
-		String data = "{\"motor1\":\"";
+		String data = "{\"1-1\":\"";
 		data += String(value_distant_motor.distant_motor_1);
-		data += "\",\"motor2\":\"";
+		data += "\",\"2-1\":\"";
 		data += String(value_distant_motor.distant_motor_2);
-		data += "\",\"motor3\":\"";
+		data += "\",\"3-1\":\"";
 		data += String(value_distant_motor.distant_motor_3);
-		data += "\",\"motor4\":\"";
+		data += "\",\"4-1\":\"";
 		data += String(value_distant_motor.distant_motor_4);
-		data += "\",\"motor5\":\"";
+		data += "\",\"5-1\":\"";
 		data += String(value_distant_motor.distant_motor_5);
-		data += "\",\"motor6\":\"";
+		data += "\",\"6-1\":\"";
 		data += String(value_distant_motor.distant_motor_6);
+		//--------------------------
+		data += "\",\"1-2\":\"";
+		data += String(percent_low_speed[MOTOR_1]);
+		data += "\",\"2-2\":\"";
+		data += String(percent_low_speed[MOTOR_2]);
+		data += "\",\"3-2\":\"";
+		data += String(percent_low_speed[MOTOR_3]);
+		data += "\",\"4-2\":\"";
+		data += String(percent_low_speed[MOTOR_4]);
+		data += "\",\"5-2\":\"";
+		data += String(percent_low_speed[MOTOR_5]);
+		data += "\",\"6-2\":\"";
+		data += String(percent_low_speed[MOTOR_6]);
+		//------------------------------
+		data += "\",\"1-3\":\"";
+		data += String(pwm_slow_speed[MOTOR_1]);
+		data += "\",\"2-3\":\"";
+		data += String(pwm_slow_speed[MOTOR_2]);
+		data += "\",\"3-3\":\"";
+		data += String(pwm_slow_speed[MOTOR_3]);
+		data += "\",\"4-3\":\"";
+		data += String(pwm_slow_speed[MOTOR_4]);
+		data += "\",\"5-3\":\"";
+		data += String(pwm_slow_speed[MOTOR_5]);
+		data += "\",\"6-3\":\"";
+		data += String(pwm_slow_speed[MOTOR_6]);
+		//---------------------------
+		data += "\",\"1-4\":\"";
+		data += String(time_return_stop[MOTOR_1]);
+		data += "\",\"2-4\":\"";
+		data += String(time_return_stop[MOTOR_2]);
+		data += "\",\"3-4\":\"";
+		data += String(time_return_stop[MOTOR_3]);
+		data += "\",\"4-4\":\"";
+		data += String(time_return_stop[MOTOR_4]);
+		data += "\",\"5-4\":\"";
+		data += String(time_return_stop[MOTOR_5]);
+		data += "\",\"6-4\":\"";
+		data += String(time_return_stop[MOTOR_6]);
 		data += "\"}";
 		for(int i = 0; i<data.length(); i++){
 			SerialBT.write(data[i]);
@@ -1658,36 +2026,49 @@ void loop(){
 
 
 	check_motor_stop_qua_tai();
+	check_motor_slow_speed();
 
 	if(change_stop_function_from_iar_to_loop[MOTOR_1]){
 		change_stop_function_from_iar_to_loop[MOTOR_1] = false;
+		trang_thai_truoc_khi_dao_chieu[MOTOR_1] = status_current_motor[MOTOR_1];
 		motor1_stop();
+		checkReturnMotor1.start();
 	}
 	if(change_stop_function_from_iar_to_loop[MOTOR_2]){
 		change_stop_function_from_iar_to_loop[MOTOR_2] = false;
+		trang_thai_truoc_khi_dao_chieu[MOTOR_2] = status_current_motor[MOTOR_2];
 		motor2_stop();
+		checkReturnMotor2.start();
 	}
 	if(change_stop_function_from_iar_to_loop[MOTOR_3]){
 		change_stop_function_from_iar_to_loop[MOTOR_3] = false;
+		trang_thai_truoc_khi_dao_chieu[MOTOR_3] = status_current_motor[MOTOR_3];
 		motor3_stop();
+		checkReturnMotor3.start();
 	}
 	if(change_stop_function_from_iar_to_loop[MOTOR_4]){
 		change_stop_function_from_iar_to_loop[MOTOR_4] = false;
+		trang_thai_truoc_khi_dao_chieu[MOTOR_4] = status_current_motor[MOTOR_4];
 		motor4_stop();
+		checkReturnMotor4.start();
 	}
 	if(change_stop_function_from_iar_to_loop[MOTOR_5]){
 		change_stop_function_from_iar_to_loop[MOTOR_5] = false;
+		trang_thai_truoc_khi_dao_chieu[MOTOR_5] = status_current_motor[MOTOR_5];
 		motor5_stop();
+		checkReturnMotor5.start();
 	}
 	if(change_stop_function_from_iar_to_loop[MOTOR_6]){
 		change_stop_function_from_iar_to_loop[MOTOR_6] = false;
+		trang_thai_truoc_khi_dao_chieu[MOTOR_6] = status_current_motor[MOTOR_6];
 		motor6_stop();
+		checkReturnMotor6.start();
 	}
 
-
+	ticker_update();
 	rtc_wdt_feed();
 	// vTaskDelay(pdMS_TO_TICKS(100));
-	delay(100);
+	delay(10);
 	yield();
 
 }

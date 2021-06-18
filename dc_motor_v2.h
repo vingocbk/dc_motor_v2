@@ -9,6 +9,7 @@
 #include "EEPROM.h"
 #include "ArduinoJson.h"
 #include "BluetoothSerial.h"
+#include <Ticker.h>
 #include "AppDebug.h"
 #include "soc/rtc_wdt.h"        //for turn of WDT
 
@@ -39,6 +40,8 @@ enum
     RUN_STOP,
     RUN_CLOSE
 };
+
+
 //--------mode open for each motor----------
 uint8_t MODE_OPEN_STEP_1[MAX_NUMBER_MOTOR] = {RUN_OPEN, RUN_OPEN, RUN_OPEN, RUN_STOP, RUN_STOP, RUN_STOP};
 uint8_t MODE_OPEN_STEP_2[MAX_NUMBER_MOTOR] = {RUN_STOP, RUN_STOP, RUN_STOP, RUN_OPEN, RUN_OPEN, RUN_OPEN};
@@ -67,6 +70,8 @@ int mode_run_open;
 int mode_run_close;
 bool fisrt_switch_mode_setup = true;
 
+uint8_t count_check_return_motor[MAX_NUMBER_MOTOR] = {0, 0, 0, 0, 0, 0}; 
+uint8_t trang_thai_truoc_khi_dao_chieu[MAX_NUMBER_MOTOR] = {MOTOR_STOP,MOTOR_STOP,MOTOR_STOP,MOTOR_STOP,MOTOR_STOP,MOTOR_STOP};
 
 void IRAM_ATTR dirhallSensor1();
 void IRAM_ATTR dirhallSensor2();
@@ -80,6 +85,21 @@ void restartCurrentDistant();
 void readDataEeprom();
 void checkButtonSwitchSetup();
 void check_motor_stop_qua_tai();
+void check_motor_slow_speed();
 void callbackBluetooth(esp_spp_cb_event_t event, esp_spp_cb_param_t *param);
+void ticker_update();
+void check_return_motor_1();
+void check_return_motor_2();
+void check_return_motor_3();
+void check_return_motor_4();
+void check_return_motor_5();
+void check_return_motor_6();
+
+Ticker checkReturnMotor1(check_return_motor_1, 100);   //every 100ms
+Ticker checkReturnMotor2(check_return_motor_2, 100);   //every 100ms
+Ticker checkReturnMotor3(check_return_motor_3, 100);   //every 100ms
+Ticker checkReturnMotor4(check_return_motor_4, 100);   //every 100ms
+Ticker checkReturnMotor5(check_return_motor_5, 100);   //every 100ms
+Ticker checkReturnMotor6(check_return_motor_6, 100);   //every 100ms
 
 #endif

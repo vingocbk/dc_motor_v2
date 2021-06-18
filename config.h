@@ -23,6 +23,18 @@
 #define PIN_SET_UP_OPEN_CLOSE   0       //ON NORMAL MODE
 #define PIN_SWITCH_MODE_SETUP   15      //ON SETUP MODE
 
+#define CHANEL_MOTOR_1_UP       0
+#define CHANEL_MOTOR_1_DOWN     1
+#define CHANEL_MOTOR_2_UP       2
+#define CHANEL_MOTOR_2_DOWN     3
+#define CHANEL_MOTOR_3_UP       4
+#define CHANEL_MOTOR_3_DOWN     5
+#define CHANEL_MOTOR_4_UP       6
+#define CHANEL_MOTOR_4_DOWN     7
+#define CHANEL_MOTOR_5_UP       8
+#define CHANEL_MOTOR_5_DOWN     9
+#define CHANEL_MOTOR_6_UP       10
+#define CHANEL_MOTOR_6_DOWN     11
 
 #define EEPROOM_CYCLE_MOTOR_1_START     1
 #define EEPROOM_CYCLE_MOTOR_1_END       10
@@ -37,6 +49,29 @@
 #define EEPROOM_CYCLE_MOTOR_6_START     51
 #define EEPROOM_CYCLE_MOTOR_6_END       60
 
+#define EEPROOM_PERCENT_SLOW_MOTOR_1    61
+#define EEPROOM_PERCENT_SLOW_MOTOR_2    62
+#define EEPROOM_PERCENT_SLOW_MOTOR_3    63
+#define EEPROOM_PERCENT_SLOW_MOTOR_4    64
+#define EEPROOM_PERCENT_SLOW_MOTOR_5    65
+#define EEPROOM_PERCENT_SLOW_MOTOR_6    66            
+
+#define EEPROOM_SPEED_MOTOR_1           67
+#define EEPROOM_SPEED_MOTOR_2           68
+#define EEPROOM_SPEED_MOTOR_3           69
+#define EEPROOM_SPEED_MOTOR_4           70
+#define EEPROOM_SPEED_MOTOR_5           71
+#define EEPROOM_SPEED_MOTOR_6           72
+
+#define EEPROOM_TIME_RETURN_MOTOR_1     73
+#define EEPROOM_TIME_RETURN_MOTOR_2     74
+#define EEPROOM_TIME_RETURN_MOTOR_3     75
+#define EEPROOM_TIME_RETURN_MOTOR_4     76
+#define EEPROOM_TIME_RETURN_MOTOR_5     77
+#define EEPROOM_TIME_RETURN_MOTOR_6     78
+
+#define STOP_PWM_SPEED      0
+#define MAX_PWM_SPEED       255
 
 
 #define BAUD_RATE_SERIAL		    115200
@@ -56,5 +91,11 @@ enum
     MOTOR_6
 };
 
+enum
+{
+    MOTOR_STOP = 0,
+    MOTOR_OPEN,
+    MOTOR_CLOSE
+};
 
 #endif
